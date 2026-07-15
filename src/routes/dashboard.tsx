@@ -58,7 +58,6 @@ const ICONS = {
 
 function Page() {
   const { user } = useAuth();
-  console.log("DEBUG dashboard.tsx:", { STAGES, QC_CHECKPOINTS });
   const {
     orders,
     materials,

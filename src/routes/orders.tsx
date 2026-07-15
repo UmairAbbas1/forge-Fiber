@@ -449,7 +449,7 @@ function Page() {
                 type="submit"
                 className="w-full bg-primary text-white hover:bg-black h-11 rounded-lg font-headline-sm text-sm font-semibold mt-6 transition-all"
               >
-                Injest Order
+                Ingest Order
               </button>
             </form>
           </div>

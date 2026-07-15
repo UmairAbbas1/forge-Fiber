@@ -78,7 +78,6 @@ function LoginPage() {
         error.message.toLowerCase().includes("does not exist") || 
         error.message.toLowerCase().includes("email not confirmed")
       )) {
-        console.log("Quick login user not found, auto-creating demo account...");
         const { error: signUpError } = await signUp(demoEmail, "password123", role, customerName);
         
         if (signUpError) {
