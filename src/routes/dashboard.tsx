@@ -422,7 +422,7 @@ function Page() {
                             <div className={`text-[11px] font-bold leading-snug line-clamp-2 ${active ? "text-white" : "text-primary"}`}>
                               {s.name}
                             </div>
-                            {s.equipment && (
+                            {"equipment" in s && s.equipment && (
                               <div className={`mt-1.5 inline-block text-[9px] font-medium px-1.5 py-0.5 rounded leading-none ${
                                 active ? "bg-white/15 text-white/90" : "bg-muted text-muted-foreground"
                               }`}>

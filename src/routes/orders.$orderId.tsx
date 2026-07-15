@@ -9,6 +9,15 @@ import {
   Play, Circle, Save, ShieldAlert, Award, FileEdit, AlertTriangle, Plus, X
 } from "lucide-react";
 
+const FINISHING_EQUIPMENT = [
+  "Industrial Washer #3",
+  "Jeanologia Laser",
+  "Ozone Booth",
+  "Spray Booth",
+  "3D Wrinkle",
+  "Steam Presser",
+];
+
 export const Route = createFileRoute("/orders/$orderId")({
   head: () => ({
     meta: [

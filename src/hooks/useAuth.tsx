@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { supabase, isRealSupabase, getMockProfiles, saveMockProfiles, type Profile } from "../lib/supabase";
 
 interface AuthContextType {
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       initAuth();
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
+        async (event: AuthChangeEvent, session: Session | null) => {
           if (session?.user) {
             const { data: profile } = await supabase
               .from("profiles")
