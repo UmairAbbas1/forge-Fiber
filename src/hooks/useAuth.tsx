@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               .select("*, customers(name)")
               .eq("id", session.user.id)
               .single();
-            
+
             if (profile) {
               setUser({
                 ...profile,
