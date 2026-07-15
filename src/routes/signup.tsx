@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useAppData } from "../hooks/useAppData";
 import { KeyRound, Mail, ArrowRight, UserPlus, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/signup")({
@@ -13,24 +14,16 @@ export const Route = createFileRoute("/signup")({
   component: SignupPage,
 });
 
-const CUSTOMERS = [
-  "Levi Strauss & Co.",
-  "H&M Group",
-  "Uniqlo Global",
-  "Zara Denim",
-  "Gap Inc.",
-  "Diesel S.p.A.",
-  "Nudie Jeans",
-];
 
 function SignupPage() {
   const navigate = useNavigate();
   const { signUp, user } = useAuth();
+  const { customers } = useAppData();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"admin" | "merchandiser" | "production" | "qc" | "customer">("customer");
-  const [customerName, setCustomerName] = useState(CUSTOMERS[0]);
+  const [customerName, setCustomerName] = useState(customers[0]?.name ?? "");
   const [errorMsg, setErrorMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -159,8 +152,8 @@ function SignupPage() {
                 className="w-full px-3 h-10 rounded-lg border border-outline-variant bg-white text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50"
                 disabled={submitting}
               >
-                {CUSTOMERS.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
                 ))}
               </select>
               <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">
