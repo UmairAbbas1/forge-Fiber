@@ -495,6 +495,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const auditRan = useRef(false); // kept for future manual re-audit trigger
 
   useEffect(() => {
+    // In live Supabase mode, the audit runs server-side via triggers.
+    if (isRealSupabase) return;
+
     // Don't run until source data is available
     if (orders.length === 0) return;
 
@@ -633,6 +636,30 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   // Including them causes an infinite loop: new notif → state change → effect → new notif.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orders, materials, qc, cartons]);
+
+  // Realtime subscription for notifications from Supabase
+  useEffect(() => {
+    if (!isRealSupabase || !user) return;
+
+    const channel = supabase
+      .channel("notifications-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["notifications", user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
 
   // Scoped views for CUSTOMERS
   const scopedOrders = !isRealSupabase && user?.role === "customer" && user?.customer_name
