@@ -26,9 +26,8 @@ const SIZES = ["28-38", "30-40", "S-XXL", "26-36", "XS-XL"];
 function Page() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { orders, addOrder, updateOrder, isOrderOnHold, customers, addCustomer } = useAppData();
+  const { orders, addOrder, updateOrder, isOrderOnHold, customers, addCustomer, globalSearchQuery, setGlobalSearchQuery } = useAppData();
 
-  const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("All");
 
   // Add Order Form State
@@ -68,7 +67,7 @@ function Page() {
   }, [user, navigate]);
 
   const filtered = useMemo(() => {
-    const qLow = q.toLowerCase().trim();
+    const qLow = globalSearchQuery.toLowerCase().trim();
     return orders.filter((o) => {
       const matchQ = qLow === "" ||
         o.order_id.toLowerCase().includes(qLow) ||
@@ -80,7 +79,7 @@ function Page() {
       const matchS = status === "All" || o.status === status;
       return matchQ && matchS;
     });
-  }, [q, status, orders]);
+  }, [globalSearchQuery, status, orders]);
 
   const open = orders.filter((o) => o.status === "Open").length;
   const inProd = orders.filter((o) => o.status === "In Production").length;
@@ -288,8 +287,8 @@ function Page() {
           action={
             <div className="flex items-center gap-2">
               <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
+                value={globalSearchQuery}
+                onChange={(e) => setGlobalSearchQuery(e.target.value)}
                 placeholder="Search order, PO, customer"
                 className="h-8 rounded-md border border-input bg-background text-xs px-2 w-48 sm:w-56 focus:outline-none focus:ring-1 focus:ring-secondary"
               />

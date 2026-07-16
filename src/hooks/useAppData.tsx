@@ -85,6 +85,8 @@ interface AppDataContextType {
   isLoading: boolean;
   toast: { message: string; type: "success" | "info" } | null;
   setToast: (toast: { message: string; type: "success" | "info" } | null) => void;
+  globalSearchQuery: string;
+  setGlobalSearchQuery: (query: string) => void;
 }
 
 const AppDataContext = createContext<AppDataContextType | undefined>(undefined);
@@ -164,6 +166,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setTimeout(() => setToastState(null), 4000);
     }
   };
+
+  // Global search state
+  const [globalSearchQuery, setGlobalSearchQuery] = useState("");
+
 
   // Load from local storage for mock mode
   useEffect(() => {
@@ -1018,6 +1024,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         isLoading,
         toast,
         setToast,
+        globalSearchQuery,
+        setGlobalSearchQuery,
       }}
     >
       {children}

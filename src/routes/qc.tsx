@@ -27,7 +27,7 @@ const QC_CHECKPOINTS = [
 function Page() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { qc, orders, addQCRecord, isOrderOnHold, isLoading } = useAppData();
+  const { qc, orders, addQCRecord, isOrderOnHold, isLoading, globalSearchQuery, setGlobalSearchQuery } = useAppData();
 
   // Add Form State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -40,8 +40,7 @@ function Page() {
   const [rejectQty, setRejectQty] = useState(2);
   const [result, setResult] = useState<"Pass" | "Rework" | "Reject">("Pass");
 
-  // Search filter
-  const [q, setQ] = useState("");
+  // Remove local search filter
   const [formError, setFormError] = useState("");
 
   // Role Guarding
@@ -104,7 +103,7 @@ function Page() {
   };
 
   const filteredQC = useMemo(() => {
-    const searchVal = q.toLowerCase().trim();
+    const searchVal = globalSearchQuery.toLowerCase().trim();
     if (!searchVal) return qc;
     return qc.filter((item) => {
       const parentOrder = orders.find((o) => o.order_id === item.order_id);
@@ -116,7 +115,7 @@ function Page() {
         (parentOrder && parentOrder.PO_number.toLowerCase().includes(searchVal))
       );
     });
-  }, [qc, orders, q]);
+  }, [qc, orders, globalSearchQuery]);
 
   // Loading skeleton state
   if (isLoading) {
@@ -207,8 +206,8 @@ function Page() {
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
+                value={globalSearchQuery}
+                onChange={(e) => setGlobalSearchQuery(e.target.value)}
                 placeholder="Search order or checkpoint..."
                 className="pl-8 pr-2 h-8 rounded-md border border-input bg-background text-xs w-48 sm:w-56 focus:outline-none focus:ring-1 focus:ring-secondary"
               />

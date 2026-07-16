@@ -28,7 +28,7 @@ const FINISHING_EQUIPMENT = [
 function Page() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { wash, orders, equipment, addWashBatch, updateWashBatch, isOrderOnHold, isLoading } = useAppData();
+  const { wash, orders, equipment, addWashBatch, updateWashBatch, isOrderOnHold, isLoading, globalSearchQuery, setGlobalSearchQuery } = useAppData();
 
   // Add Form State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -39,8 +39,7 @@ function Page() {
   const [batchStage, setBatchStage] = useState<"Wash" | "Dry" | "Finish" | "Approved">("Wash");
   const [selectedEquip, setSelectedEquip] = useState(FINISHING_EQUIPMENT[0]);
 
-  // Search filter
-  const [q, setQ] = useState("");
+  // Remove local search filter
   const [formError, setFormError] = useState("");
 
   // Role Guarding
@@ -125,7 +124,7 @@ function Page() {
   };
 
   const filteredWash = useMemo(() => {
-    const qLow = q.toLowerCase().trim();
+    const qLow = globalSearchQuery.toLowerCase().trim();
     if (!qLow) return wash;
     return wash.filter((w) => {
       const parentOrder = orders.find((o) => o.order_id === w.order_id);
@@ -138,7 +137,7 @@ function Page() {
         (parentOrder && parentOrder.PO_number.toLowerCase().includes(qLow))
       );
     });
-  }, [wash, orders, q]);
+  }, [wash, orders, globalSearchQuery]);
 
   // Loading skeleton state
   if (isLoading) {
@@ -228,8 +227,8 @@ function Page() {
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
+                value={globalSearchQuery}
+                onChange={(e) => setGlobalSearchQuery(e.target.value)}
                 placeholder="Search order or equipment..."
                 className="pl-8 pr-2 h-8 rounded-md border border-input bg-background text-xs w-48 sm:w-56 focus:outline-none focus:ring-1 focus:ring-secondary"
               />

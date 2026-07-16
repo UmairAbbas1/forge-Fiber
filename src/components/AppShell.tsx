@@ -41,7 +41,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { location } = useRouterState();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { notifications, markNotificationAsRead, toast } = useAppData();
+  const { notifications, markNotificationAsRead, toast, globalSearchQuery, setGlobalSearchQuery } = useAppData();
   const [now, setNow] = useState<string>("");
   const [showNotifs, setShowNotifs] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -309,6 +309,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="search"
+                  value={globalSearchQuery}
+                  onChange={(e) => setGlobalSearchQuery(e.target.value)}
                   placeholder="Search order ID, PO, customer…"
                   className="w-full pl-9 pr-3 h-9 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
                 />

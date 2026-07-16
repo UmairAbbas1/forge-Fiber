@@ -19,9 +19,8 @@ export const Route = createFileRoute("/dispatch")({
 function Page() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cartons, orders, addCarton, updateCartonDispatch, isOrderOnHold, isLoading } = useAppData();
+  const { cartons, orders, addCarton, updateCartonDispatch, isOrderOnHold, isLoading, globalSearchQuery, setGlobalSearchQuery } = useAppData();
 
-  const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [podInputs, setPodInputs] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState("");
@@ -44,14 +43,14 @@ function Page() {
   const filteredCartons = useMemo(() => {
     return cartons.filter((c) => {
       const order = orders.find((o) => o.order_id === c.order_id);
-      const matchQ = q === "" ||
-        c.carton_id.toLowerCase().includes(q.toLowerCase()) ||
-        c.order_id.toLowerCase().includes(q.toLowerCase()) ||
-        (order && order.customer_name.toLowerCase().includes(q.toLowerCase()));
+      const matchQ = globalSearchQuery === "" ||
+        c.carton_id.toLowerCase().includes(globalSearchQuery.toLowerCase()) ||
+        c.order_id.toLowerCase().includes(globalSearchQuery.toLowerCase()) ||
+        (order && order.customer_name.toLowerCase().includes(globalSearchQuery.toLowerCase()));
       const matchStatus = statusFilter === "All" || c.dispatch_status === statusFilter;
       return matchQ && matchStatus;
     });
-  }, [cartons, orders, q, statusFilter]);
+  }, [cartons, orders, globalSearchQuery, statusFilter]);
 
   // KPI Calculations
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -203,8 +202,8 @@ function Page() {
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
+                  value={globalSearchQuery}
+                  onChange={(e) => setGlobalSearchQuery(e.target.value)}
                   placeholder="Search order, customer, carton"
                   className="pl-8 pr-2 h-8 rounded-md border border-input bg-background text-xs w-48 sm:w-56 focus:outline-none focus:ring-1 focus:ring-secondary"
                 />

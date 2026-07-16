@@ -19,7 +19,7 @@ export const Route = createFileRoute("/materials")({
 function Page() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { materials, orders, addMaterial, updateMaterialInspection, isOrderOnHold, isLoading } = useAppData();
+  const { materials, orders, addMaterial, updateMaterialInspection, isOrderOnHold, isLoading, globalSearchQuery, setGlobalSearchQuery } = useAppData();
 
   // Add Form State
   const [showAddModal, setShowAddModal] = useState(false);
@@ -31,8 +31,7 @@ function Page() {
   const [qtyReceived, setQtyReceived] = useState(100);
   const [formError, setFormError] = useState("");
 
-  // Search filter
-  const [q, setQ] = useState("");
+  // Remove local search filter
 
   // Role Guarding: redirect non-floor/customer roles
   useEffect(() => {
@@ -92,7 +91,7 @@ function Page() {
   };
 
   const filteredMaterials = useMemo(() => {
-    const qLow = q.toLowerCase().trim();
+    const qLow = globalSearchQuery.toLowerCase().trim();
     if (!qLow) return materials;
     return materials.filter((m) => {
       const parentOrder = orders.find((o) => o.order_id === m.order_id);
@@ -105,7 +104,7 @@ function Page() {
         (parentOrder && parentOrder.PO_number.toLowerCase().includes(qLow))
       );
     });
-  }, [materials, orders, q]);
+  }, [materials, orders, globalSearchQuery]);
 
   // Loading skeleton state
   if (isLoading) {
@@ -180,9 +179,9 @@ function Page() {
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search order or material..."
+                value={globalSearchQuery}
+                onChange={(e) => setGlobalSearchQuery(e.target.value)}
+                placeholder="Search material, order, customer"
                 className="pl-8 pr-2 h-8 rounded-md border border-input bg-background text-xs w-48 sm:w-56 focus:outline-none focus:ring-1 focus:ring-secondary"
               />
             </div>
