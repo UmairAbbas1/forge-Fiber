@@ -97,6 +97,9 @@ function Page() {
   // Log Carton state
   const [cartonQty, setCartonQty] = useState(150);
 
+  // Shared modal error state
+  const [modalError, setModalError] = useState("");
+
   // Retrieve matching order
   const order = orders.find((o) => o.order_id === orderId);
 
@@ -275,7 +278,15 @@ function Page() {
   // Form submits
   const handleMaterialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!matDesc || matQty <= 0) return;
+    setModalError("");
+    if (!matDesc.trim()) {
+      setModalError("Please enter a material description.");
+      return;
+    }
+    if (matQty <= 0) {
+      setModalError("Quantity received must be greater than zero.");
+      return;
+    }
     addMaterial({
       material_id: `MAT-${Date.now().toString().slice(-5)}`,
       order_id: orderId,
@@ -287,12 +298,21 @@ function Page() {
     });
     setMatDesc("");
     setMatQty(100);
+    setModalError("");
     setActiveModal(null);
   };
 
   const handleCuttingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (panelsCut <= 0 || !cutterUsed) return;
+    setModalError("");
+    if (panelsCut <= 0) {
+      setModalError("Panels cut must be greater than zero.");
+      return;
+    }
+    if (!cutterUsed) {
+      setModalError("Please select a cutter / cutting machine.");
+      return;
+    }
     addCuttingRecord({
       cut_id: `CUT-${Date.now().toString().slice(-5)}`,
       order_id: orderId,
@@ -306,12 +326,21 @@ function Page() {
     setPanelsCut(500);
     setCutSize("M");
     setCutColor("Indigo");
+    setModalError("");
     setActiveModal(null);
   };
 
   const handleSewingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (opsCount <= 0 || sewQty <= 0) return;
+    setModalError("");
+    if (opsCount <= 0) {
+      setModalError("Operator count must be at least 1.");
+      return;
+    }
+    if (sewQty <= 0) {
+      setModalError("Bundle quantity must be greater than zero.");
+      return;
+    }
     addSewingBundle({
       bundle_id: `BDL-${Date.now().toString().slice(-5)}`,
       order_id: orderId,
@@ -324,12 +353,21 @@ function Page() {
     setOpsCount(15);
     setSewQty(250);
     setSewQcResult("Pass");
+    setModalError("");
     setActiveModal(null);
   };
 
   const handleWashSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (washQty <= 0 || !washEquip) return;
+    setModalError("");
+    if (washQty <= 0) {
+      setModalError("Pieces quantity must be greater than zero.");
+      return;
+    }
+    if (!washEquip) {
+      setModalError("Please select the equipment used for this wash batch.");
+      return;
+    }
     addWashBatch({
       batch_id: `WSH-${Date.now().toString().slice(-5)}`,
       order_id: orderId,
@@ -339,12 +377,25 @@ function Page() {
     });
     setWashQty(500);
     setWashStage("Wash");
+    setModalError("");
     setActiveModal(null);
   };
 
   const handleQcSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (qcInspected <= 0) return;
+    setModalError("");
+    if (qcInspected <= 0) {
+      setModalError("Inspected quantity must be greater than zero.");
+      return;
+    }
+    if (qcPass < 0 || qcReject < 0) {
+      setModalError("Pass and reject quantities cannot be negative.");
+      return;
+    }
+    if (qcPass + qcReject > qcInspected) {
+      setModalError(`Pass (${qcPass}) + Reject (${qcReject}) quantities cannot exceed total inspected (${qcInspected}).`);
+      return;
+    }
     addQCRecord({
       qc_id: `QA-${Date.now().toString().slice(-5)}`,
       order_id: orderId,
@@ -359,12 +410,17 @@ function Page() {
     setQcPass(98);
     setQcReject(2);
     setQcResult("Pass");
+    setModalError("");
     setActiveModal(null);
   };
 
   const handleCartonSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (cartonQty <= 0) return;
+    setModalError("");
+    if (cartonQty <= 0) {
+      setModalError("Packed quantity must be greater than zero.");
+      return;
+    }
     addCarton({
       carton_id: `CTN-${Date.now().toString().slice(-5)}`,
       order_id: orderId,
@@ -374,6 +430,7 @@ function Page() {
       ship_date: "",
     });
     setCartonQty(150);
+    setModalError("");
     setActiveModal(null);
   };
 
@@ -844,11 +901,16 @@ function Page() {
       {activeModal === "material" && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up text-left">
-            <button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
+            <button onClick={() => { setActiveModal(null); setModalError(""); }} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display text-lg font-bold text-primary mb-1">Log Material Receipt</h3>
-            <p className="text-xs text-muted-foreground mb-6">Order: {order.order_id} ({order.customer_name})</p>
+            <p className="text-xs text-muted-foreground mb-4">Order: {order.order_id} ({order.customer_name})</p>
+            {modalError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span><span>{modalError}</span>
+              </div>
+            )}
             <form onSubmit={handleMaterialSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -878,11 +940,16 @@ function Page() {
       {activeModal === "cutting" && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up text-left">
-            <button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
+            <button onClick={() => { setActiveModal(null); setModalError(""); }} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display text-lg font-bold text-primary mb-1">Log Cutting Job</h3>
-            <p className="text-xs text-muted-foreground mb-6">Order: {order.order_id} ({order.customer_name})</p>
+            <p className="text-xs text-muted-foreground mb-4">Order: {order.order_id} ({order.customer_name})</p>
+            {modalError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span><span>{modalError}</span>
+              </div>
+            )}
             <form onSubmit={handleCuttingSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -926,11 +993,16 @@ function Page() {
       {activeModal === "sewing" && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up text-left">
-            <button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
+            <button onClick={() => { setActiveModal(null); setModalError(""); }} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display text-lg font-bold text-primary mb-1">Log Sewing Bundle</h3>
-            <p className="text-xs text-muted-foreground mb-6">Order: {order.order_id} ({order.customer_name})</p>
+            <p className="text-xs text-muted-foreground mb-4">Order: {order.order_id} ({order.customer_name})</p>
+            {modalError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span><span>{modalError}</span>
+              </div>
+            )}
             <form onSubmit={handleSewingSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -978,11 +1050,16 @@ function Page() {
       {activeModal === "wash" && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up text-left">
-            <button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
+            <button onClick={() => { setActiveModal(null); setModalError(""); }} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display text-lg font-bold text-primary mb-1">Log Wash Batch</h3>
-            <p className="text-xs text-muted-foreground mb-6">Order: {order.order_id} ({order.customer_name})</p>
+            <p className="text-xs text-muted-foreground mb-4">Order: {order.order_id} ({order.customer_name})</p>
+            {modalError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span><span>{modalError}</span>
+              </div>
+            )}
             <form onSubmit={handleWashSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -1022,11 +1099,16 @@ function Page() {
       {activeModal === "qc" && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up text-left">
-            <button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
+            <button onClick={() => { setActiveModal(null); setModalError(""); }} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display text-lg font-bold text-primary mb-1">Log QC Audit</h3>
-            <p className="text-xs text-muted-foreground mb-6">Order: {order.order_id} ({order.customer_name})</p>
+            <p className="text-xs text-muted-foreground mb-4">Order: {order.order_id} ({order.customer_name})</p>
+            {modalError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span><span>{modalError}</span>
+              </div>
+            )}
             <form onSubmit={handleQcSubmit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-primary">Checkpoint</label>
@@ -1070,11 +1152,16 @@ function Page() {
       {activeModal === "carton" && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up text-left">
-            <button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
+            <button onClick={() => { setActiveModal(null); setModalError(""); }} className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent">
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display text-lg font-bold text-primary mb-1">Create Carton</h3>
             <p className="text-xs text-muted-foreground mb-6">Order: {order.order_id} ({order.customer_name})</p>
+            {modalError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span><span>{modalError}</span>
+              </div>
+            )}
             <form onSubmit={handleCartonSubmit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[11px] font-semibold uppercase tracking-wider text-primary">Packed Qty (pcs)</label>

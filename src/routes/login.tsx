@@ -41,6 +41,10 @@ function LoginPage() {
       setErrorMsg("Please enter both email and password.");
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setErrorMsg("Please enter a valid email address (e.g. name@company.com).");
+      return;
+    }
 
     setSubmitting(true);
     setErrorMsg("");

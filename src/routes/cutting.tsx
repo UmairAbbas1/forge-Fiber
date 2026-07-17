@@ -34,6 +34,7 @@ function Page() {
 
   // Search filter
   const [q, setQ] = useState("");
+  const [formError, setFormError] = useState("");
 
   // Role Guarding
   useEffect(() => {
@@ -69,7 +70,19 @@ function Page() {
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedOrderId || panelsCut <= 0 || !cutterUsed) return;
+    setFormError("");
+    if (!selectedOrderId) {
+      setFormError("Please select an order before logging a cutting job.");
+      return;
+    }
+    if (panelsCut <= 0) {
+      setFormError("Panels cut must be greater than zero.");
+      return;
+    }
+    if (!cutterUsed) {
+      setFormError("Please select a cutter / cutting machine.");
+      return;
+    }
     addCuttingRecord({
       cut_id: `CUT-${Date.now().toString().slice(-5)}`,
       order_id: selectedOrderId,
@@ -87,19 +100,26 @@ function Page() {
     setSize("M");
     setColor("Indigo Blue");
     setStatus("In Progress");
+    setFormError("");
     setShowAddModal(false);
   };
 
   const filteredCutting = useMemo(() => {
+    const qLow = q.toLowerCase().trim();
+    if (!qLow) return cutting;
     return cutting.filter((c) => {
-      if (q === "") return true;
+      const parentOrder = orders.find((o) => o.order_id === c.order_id);
       return (
-        c.cut_id.toLowerCase().includes(q.toLowerCase()) ||
-        c.order_id.toLowerCase().includes(q.toLowerCase()) ||
-        c.cutter_used.toLowerCase().includes(q.toLowerCase())
+        c.cut_id.toLowerCase().includes(qLow) ||
+        c.order_id.toLowerCase().includes(qLow) ||
+        c.cutter_used.toLowerCase().includes(qLow) ||
+        c.size.toLowerCase().includes(qLow) ||
+        c.color.toLowerCase().includes(qLow) ||
+        (parentOrder && parentOrder.customer_name.toLowerCase().includes(qLow)) ||
+        (parentOrder && parentOrder.PO_number.toLowerCase().includes(qLow))
       );
     });
-  }, [cutting, q]);
+  }, [cutting, orders, q]);
 
   // Loading skeleton state
   if (isLoading) {
@@ -301,13 +321,20 @@ function Page() {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up">
             <button
-              onClick={() => setShowAddModal(false)}
+              onClick={() => { setShowAddModal(false); setFormError(""); }}
               className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent"
             >
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display text-lg font-bold text-primary mb-1">Log Cutting Job</h3>
-            <p className="text-xs text-muted-foreground mb-6">Create panels cutting tracking card for order.</p>
+            <p className="text-xs text-muted-foreground mb-4">Create panels cutting tracking card for order.</p>
+
+            {formError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span>
+                <span>{formError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleAddSubmit} className="space-y-4">
               {/* Order Combobox */}

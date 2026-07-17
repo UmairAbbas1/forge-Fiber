@@ -44,10 +44,12 @@ function SettingsPage() {
   // New Customer Form State
   const [custName, setCustName] = useState("");
   const [custContact, setCustContact] = useState("");
+  const [custFormError, setCustFormError] = useState("");
 
   // New Equipment Form State
   const [eqName, setEqName] = useState("");
   const [eqType, setEqType] = useState("Cutter");
+  const [eqFormError, setEqFormError] = useState("");
 
   // Checkpoints editable states
   const [editAql, setEditAql] = useState<Record<string, string>>({});
@@ -170,10 +172,23 @@ function SettingsPage() {
   // Customer submit
   const handleAddCustomerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!custName || !custContact) return;
+    setCustFormError("");
+    if (!custName.trim()) {
+      setCustFormError("Please enter the company name.");
+      return;
+    }
+    if (!custContact.trim()) {
+      setCustFormError("Please enter a contact email address.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(custContact.trim())) {
+      setCustFormError("Please enter a valid contact email address (e.g. sourcing@retailer.com).");
+      return;
+    }
     addCustomer(custName, custContact);
     setCustName("");
     setCustContact("");
+    setCustFormError("");
     setIsSuccess(true);
     setStatusMsg(`Customer "${custName}" registered successfully.`);
   };
@@ -181,9 +196,14 @@ function SettingsPage() {
   // Equipment submit
   const handleAddEquipmentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!eqName) return;
+    setEqFormError("");
+    if (!eqName.trim()) {
+      setEqFormError("Please enter the asset / equipment name.");
+      return;
+    }
     addEquipment(eqName, eqType);
     setEqName("");
+    setEqFormError("");
     setIsSuccess(true);
     setStatusMsg(`Equipment "${eqName}" registered successfully.`);
   };
@@ -386,6 +406,12 @@ function SettingsPage() {
               <div>
                 <SectionCard title="Register New Account">
                   <form onSubmit={handleAddCustomerSubmit} className="space-y-4">
+                    {custFormError && (
+                      <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25">
+                        <span className="shrink-0">⚠</span>
+                        <span>{custFormError}</span>
+                      </div>
+                    )}
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Retail Company Name</label>
                       <input
@@ -393,7 +419,6 @@ function SettingsPage() {
                         onChange={(e) => setCustName(e.target.value)}
                         placeholder="e.g. Levi Strauss & Co."
                         className="w-full h-10 px-3 rounded-lg border border-outline-variant bg-card text-xs focus:outline-none"
-                        required
                       />
                     </div>
                     <div className="space-y-1">
@@ -404,7 +429,6 @@ function SettingsPage() {
                         onChange={(e) => setCustContact(e.target.value)}
                         placeholder="sourcing@retailer.com"
                         className="w-full h-10 px-3 rounded-lg border border-outline-variant bg-card text-xs focus:outline-none"
-                        required
                       />
                     </div>
                     <button
@@ -478,6 +502,12 @@ function SettingsPage() {
               <div>
                 <SectionCard title="Add Floor Asset">
                   <form onSubmit={handleAddEquipmentSubmit} className="space-y-4">
+                    {eqFormError && (
+                      <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25">
+                        <span className="shrink-0">⚠</span>
+                        <span>{eqFormError}</span>
+                      </div>
+                    )}
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Asset Name</label>
                       <input
@@ -485,7 +515,6 @@ function SettingsPage() {
                         onChange={(e) => setEqName(e.target.value)}
                         placeholder="e.g. Jeanologia Laser #3"
                         className="w-full h-10 px-3 rounded-lg border border-outline-variant bg-card text-xs focus:outline-none"
-                        required
                       />
                     </div>
                     <div className="space-y-1">

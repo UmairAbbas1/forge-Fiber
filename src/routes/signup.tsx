@@ -22,6 +22,7 @@ function SignupPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"admin" | "merchandiser" | "production" | "qc" | "customer">("customer");
   const [customerName, setCustomerName] = useState(customers[0]?.name ?? "");
   const [errorMsg, setErrorMsg] = useState("");
@@ -35,11 +36,19 @@ function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setErrorMsg("Please enter both email and password.");
+      setErrorMsg("Please enter email and password.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setErrorMsg("Please enter a valid email address (e.g. name@company.com).");
       return;
     }
     if (password.length < 6) {
       setErrorMsg("Password must be at least 6 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords do not match. Please re-enter to confirm.");
       return;
     }
 
@@ -136,6 +145,24 @@ function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 6 characters"
+                  className="w-full pl-9 pr-3 h-10 rounded-lg border border-outline-variant bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary"
+                  disabled={submitting}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">Minimum 6 characters required.</p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-primary uppercase tracking-wider block">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-outline" />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter password"
                   className="w-full pl-9 pr-3 h-10 rounded-lg border border-outline-variant bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary"
                   disabled={submitting}
                 />

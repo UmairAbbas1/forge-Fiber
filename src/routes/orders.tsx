@@ -38,6 +38,7 @@ function Page() {
   const [newTechPack, setNewTechPack] = useState("");
   const [newSizes, setNewSizes] = useState(SIZES[0]);
   const [newQty, setNewQty] = useState(1000);
+  const [addFormError, setAddFormError] = useState("");
 
   // Add-new-brand inline state (for Add modal)
   const [showAddBrandAdd, setShowAddBrandAdd] = useState(false);
@@ -57,6 +58,7 @@ function Page() {
   const [editSizes, setEditSizes] = useState("");
   const [editQty, setEditQty] = useState(1000);
   const [editStatus, setEditStatus] = useState<Order["status"]>("Open");
+  const [editFormError, setEditFormError] = useState("");
 
   // Role Guarding: redirect production role users to /materials
   useEffect(() => {
@@ -126,7 +128,23 @@ function Page() {
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPO || !newTechPack || !newCustomer) return;
+    setAddFormError("");
+    if (!newCustomer) {
+      setAddFormError("Please select a customer / brand.");
+      return;
+    }
+    if (!newPO.trim()) {
+      setAddFormError("Please enter the PO number.");
+      return;
+    }
+    if (!newTechPack.trim()) {
+      setAddFormError("Please enter the tech pack reference.");
+      return;
+    }
+    if (newQty <= 0) {
+      setAddFormError("Order quantity must be greater than zero.");
+      return;
+    }
 
     const newOrderId = `FF-${(2600 + orders.length).toString()}`;
     addOrder({
@@ -148,6 +166,7 @@ function Page() {
     setNewQty(1000);
     setShowAddBrandAdd(false);
     setNewBrandNameAdd("");
+    setAddFormError("");
     setShowAddModal(false);
   };
 
@@ -164,6 +183,23 @@ function Page() {
   const handleUpdateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedOrder) return;
+    setEditFormError("");
+    if (!editCustomer) {
+      setEditFormError("Please select a customer / brand.");
+      return;
+    }
+    if (!editPO.trim()) {
+      setEditFormError("Please enter the PO number.");
+      return;
+    }
+    if (!editTechPack.trim()) {
+      setEditFormError("Please enter the tech pack reference.");
+      return;
+    }
+    if (editQty <= 0) {
+      setEditFormError("Order quantity must be greater than zero.");
+      return;
+    }
 
     updateOrder(selectedOrder.order_id, {
       customer_name: editCustomer,
@@ -174,6 +210,7 @@ function Page() {
       status: editStatus,
     });
 
+    setEditFormError("");
     setSelectedOrder(null);
   };
 
@@ -334,13 +371,20 @@ function Page() {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up">
             <button
-              onClick={() => setShowAddModal(false)}
+              onClick={() => { setShowAddModal(false); setAddFormError(""); }}
               className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent"
             >
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display-lg text-lg font-bold text-primary mb-1">Create Intake Order</h3>
-            <p className="text-xs text-muted-foreground mb-6">Register incoming fabrics/materials PO details.</p>
+            <p className="text-xs text-muted-foreground mb-4">Register incoming fabrics/materials PO details.</p>
+
+            {addFormError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span>
+                <span>{addFormError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleAddSubmit} className="space-y-4">
               <div className="space-y-1">
@@ -463,13 +507,20 @@ function Page() {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-outline-variant max-w-md w-full shadow-2xl p-6 relative animate-scale-up">
             <button
-              onClick={() => setSelectedOrder(null)}
+              onClick={() => { setSelectedOrder(null); setEditFormError(""); }}
               className="absolute top-4 right-4 p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent"
             >
               <X className="h-5 w-5" />
             </button>
             <h3 className="font-display-lg text-lg font-bold text-primary mb-1">Modify Order intake: {selectedOrder.order_id}</h3>
-            <p className="text-xs text-muted-foreground mb-6">Modify technical parameters or dispatch states.</p>
+            <p className="text-xs text-muted-foreground mb-4">Modify technical parameters or dispatch states.</p>
+
+            {editFormError && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-xs border border-destructive/25 mb-4">
+                <span className="shrink-0">⚠</span>
+                <span>{editFormError}</span>
+              </div>
+            )}
 
             <form onSubmit={handleUpdateSubmit} className="space-y-4">
               <div className="space-y-1">
