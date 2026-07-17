@@ -170,9 +170,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex flex-col h-full">
             <div className="px-5 py-5 border-b border-sidebar-border">
               <div className="flex items-center gap-2">
-                <div className="h-9 w-9 rounded-md bg-gold text-gold-foreground grid place-items-center font-black text-lg">
-                  F
-                </div>
+                <img 
+                  src="/favicon.png" 
+                  alt="Logo" 
+                  className="h-9 w-9 rounded-md object-cover" 
+                />
                 <div className="leading-tight">
                   <div className="font-display font-bold text-sm tracking-wide text-sidebar-foreground">FORGE &amp; FABRIC</div>
                   <div className="text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/60">
@@ -219,9 +221,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div className="px-4 py-5 border-b border-sidebar-border flex items-center justify-between">
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="h-9 w-9 rounded-md bg-gold text-gold-foreground grid place-items-center font-black text-lg shrink-0">
-              F
-            </div>
+            <img 
+              src="/favicon.png" 
+              alt="Logo" 
+              className="h-9 w-9 rounded-md object-cover shrink-0" 
+            />
             {!collapsed && (
               <div className="leading-tight transition-all duration-300">
                 <div className="font-display font-bold text-sm tracking-wide">FORGE &amp; FABRIC</div>

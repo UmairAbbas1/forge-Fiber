@@ -95,9 +95,11 @@ function GlobalLoadingScreen({ error }: { error?: string | null }) {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-5">
       {/* Brand mark */}
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-primary text-primary-foreground grid place-items-center font-black text-xl select-none">
-          F
-        </div>
+        <img 
+          src="/favicon.png" 
+          alt="Logo" 
+          className="h-10 w-10 rounded-lg object-cover select-none" 
+        />
         <span className="font-bold text-base tracking-widest uppercase text-foreground">
           Forge &amp; Fabric
         </span>
