@@ -28,6 +28,13 @@ function SignupPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Ensure default customer is selected once loaded
+  useEffect(() => {
+    if (!customerName && customers.length > 0) {
+      setCustomerName(customers[0].name);
+    }
+  }, [customers, customerName]);
+
   // If already logged in, redirect to dashboard
   if (user) {
     navigate({ to: "/dashboard" });
@@ -181,7 +188,7 @@ function SignupPage() {
                 disabled={submitting}
               >
                 {customers.map((c) => (
-                  <option key={c.id} value={c.name}>{c.name}</option>
+                  <option key={c.id} value={c.name} className="text-slate-900 bg-white">{c.name}</option>
                 ))}
               </select>
               <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">
