@@ -417,7 +417,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 bg-black/95 text-white text-xs px-4 py-3 rounded-lg shadow-2xl border border-white/10 flex items-center gap-2 animate-scale-up">
-          <div className="h-2 w-2 rounded-full bg-success animate-ping" />
+          <div className={`h-2 w-2 rounded-full animate-ping ${
+            toast.type === "error"
+              ? "bg-destructive"
+              : toast.type === "info"
+              ? "bg-blue-500"
+              : "bg-success"
+          }`} />
           <span>{toast.message}</span>
         </div>
       )}

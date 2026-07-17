@@ -151,7 +151,7 @@ function Page() {
   };
 
   // Loading skeleton state
-  if (isLoading) {
+  if (orders.length === 0 && isLoading) {
     return (
       <AppShell>
         <div className="relative min-h-[400px] flex flex-col justify-start">
