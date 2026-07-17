@@ -145,7 +145,11 @@ function Page() {
       return;
     }
 
-    const newOrderId = `FF-${(2600 + orders.length).toString()}`;
+    const numericIds = orders
+      .map((o) => parseInt(o.order_id.replace("FF-", ""), 10))
+      .filter((n) => !isNaN(n));
+    const nextId = numericIds.length > 0 ? Math.max(...numericIds) + 1 : 2601;
+    const newOrderId = `FF-${nextId}`;
     addOrder({
       order_id: newOrderId,
       customer_name: newCustomer,

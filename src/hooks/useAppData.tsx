@@ -553,7 +553,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const addCustomerMutation = useMutation({
     mutationFn: async (customer: Customer) => {
-      const { error } = await supabase.from("customers").insert(customer);
+      const dbCustomer = {
+        name: customer.name,
+        contact: customer.contact,
+      };
+      const { error } = await supabase.from("customers").insert(dbCustomer);
       if (error) throw error;
     },
     onSuccess: () => {
