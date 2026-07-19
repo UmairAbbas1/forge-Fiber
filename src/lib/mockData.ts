@@ -187,8 +187,8 @@ export const ORDERS: Order[] = Array.from({ length: 42 }, (_, i) => {
   return {
     order_id: `FF-${(2600 + i).toString()}`,
     customer_name: pick(CUSTOMERS),
-    PO_number: `PO-${range(10000, 99999)}`,
-    tech_pack_ref: `TP-${range(1000, 9999)}`,
+    PO_number: `PO-${10000 + i}`,
+    tech_pack_ref: `TP-${1000 + i}`,
     size_breakdown: pick(SIZES),
     status,
     created_date: dateDaysAgo(range(1, 60)),

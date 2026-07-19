@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useAppData } from "../hooks/useAppData";
 import { KeyRound, Mail, ArrowRight, UserPlus, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/signup")({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/signup")({
 function SignupPage() {
   const navigate = useNavigate();
   const { signUp, user } = useAuth();
+  const { customers, addCustomer } = useAppData();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,6 +66,9 @@ function SignupPage() {
       if (error) {
         setErrorMsg(error.message);
       } else {
+        if (selectedCustomer && !customers.some(c => c.name.toLowerCase() === selectedCustomer.toLowerCase().trim())) {
+          addCustomer(selectedCustomer.trim(), email);
+        }
         navigate({ to: "/dashboard" });
       }
     } catch (err: any) {
