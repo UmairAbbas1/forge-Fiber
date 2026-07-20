@@ -32,7 +32,58 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   return (
-    <PublicLayout>
+<PublicLayout>
+    <div className="bg-white text-foreground font-sans overflow-x-hidden min-h-screen">
+      {/* TopNavBar */}
+      <nav
+        className={`fixed top-0 w-full z-50 bg-white/95 border-b border-border transition-all duration-300 ${
+          scrolled ? "h-20 shadow-sm" : "h-24"
+        }`}
+      >
+        <div className="flex justify-between items-center px-6 md:px-12 h-full w-full max-w-7xl mx-auto">
+          <div className="flex items-center gap-3.5">
+            <img src="/favicon.png" alt="Forge & Fabric Logo" className="h-12 w-12 md:h-14 md:w-14 rounded-xl object-contain p-1 border border-slate-200 bg-white shadow-sm" />
+            <span className="font-display text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
+              Forge &amp; Fabric
+            </span>
+          </div>
+          
+          <div className="hidden md:flex gap-8 items-center">
+            {/* Navigation links have been removed for unauthenticated landing page */}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/dashboard"
+              className="hidden sm:inline-flex bg-primary-container text-on-primary-container hover:bg-primary hover:text-white px-6 py-2.5 rounded-lg font-label-caps text-xs tracking-wider uppercase transition-all duration-200"
+            >
+              Sign In
+            </Link>
+            
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-on-surface hover:text-secondary"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 w-full bg-surface-container-lowest border-b border-outline-variant p-6 space-y-4 shadow-xl">
+            <Link
+              to="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-center bg-primary-container text-on-primary-container hover:bg-primary hover:text-white py-3 rounded-lg font-label-caps text-sm tracking-wider uppercase transition-all"
+            >
+              Sign In
+            </Link>
+          </div>
+        )}
+      </nav>
+
+      <main className={`${scrolled ? "mt-16" : "mt-20"} transition-all duration-300`}>
         {/* Hero Section */}
         <section className="relative min-h-[800px] flex items-center overflow-hidden industrial-grid py-16 px-6 md:px-12 bg-surface">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
@@ -68,16 +119,6 @@ function LandingPage() {
                   src="/assets/stitch/hero_factory.jpg"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent"></div>
-                {/* Floating Badge */}
-                <div className="absolute bottom-6 right-6 glass-card border border-outline-variant/60 p-4 rounded-lg flex items-center gap-3 animate-bounce shadow-lg">
-                  <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white shadow-inner">
-                    <ShieldCheck className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="font-label-caps text-xs font-bold text-primary">Quality Certified</p>
-                    <p className="font-mono text-xs text-on-surface-variant font-medium">Batch #7721-QC</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
