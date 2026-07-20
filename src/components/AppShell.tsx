@@ -219,31 +219,45 @@ export function AppShell({ children }: { children: ReactNode }) {
           collapsed ? "w-16" : "w-64"
         }`}
       >
-        <div className="px-4 py-5 border-b border-sidebar-border flex items-center justify-between">
-          <div className="flex items-center gap-2 overflow-hidden">
+        {collapsed ? (
+          <div className="py-4 px-2 border-b border-sidebar-border flex flex-col items-center gap-2.5">
             <img 
               src="/favicon.png" 
               alt="Logo" 
-              className="h-9 w-9 rounded-md object-cover shrink-0" 
+              className="h-8 w-8 rounded-lg object-contain shrink-0" 
             />
-            {!collapsed && (
+            <button 
+              onClick={toggleCollapsed}
+              className="p-1.5 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all focus:outline-none"
+              title="Expand Sidebar"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="px-4 py-4 border-b border-sidebar-border flex items-center justify-between">
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <img 
+                src="/favicon.png" 
+                alt="Logo" 
+                className="h-9 w-9 rounded-lg object-contain shrink-0" 
+              />
               <div className="leading-tight transition-all duration-300">
                 <div className="font-display font-bold text-sm tracking-wide">FORGE &amp; FABRIC</div>
                 <div className="text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/60">
                   Built to craft
                 </div>
               </div>
-            )}
+            </div>
+            <button 
+              onClick={toggleCollapsed}
+              className="p-1.5 rounded-md bg-sidebar-accent/40 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground transition-all focus:outline-none"
+              title="Collapse Sidebar"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
           </div>
-          
-          <button 
-            onClick={toggleCollapsed}
-            className="p-1.5 rounded bg-sidebar-accent/40 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground transition-all focus:outline-none"
-            title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-          >
-            {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
-          </button>
-        </div>
+        )}
 
         <TooltipProvider delayDuration={0}>
           <nav className="flex-1 px-3 py-4 space-y-1.5">
@@ -255,11 +269,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`flex items-center rounded-md text-sm transition-all focus:outline-none ${
-                    collapsed ? "justify-center h-10 w-10 mx-auto" : "gap-3 px-3 py-2"
+                  className={`flex items-center text-sm transition-all focus:outline-none ${
+                    collapsed ? "justify-center h-10 w-10 mx-auto rounded-lg" : "gap-3 px-3.5 py-2.5 rounded-md"
                   } ${
                     active
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-primary font-semibold"
+                      ? collapsed
+                        ? "bg-secondary text-secondary-foreground font-bold shadow-sm"
+                        : "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-primary font-semibold"
                       : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
                   }`}
                 >
