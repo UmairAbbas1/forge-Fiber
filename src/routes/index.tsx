@@ -66,7 +66,7 @@ function LandingPage() {
                 <img
                   className="w-full h-full object-cover"
                   alt="Industrial textile factory precision garment production"
-                  src="/assets/stitch/hero_factory.jpg"
+                  src="/assets/machines/ozone_chambers.png"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent"></div>
               </div>
@@ -119,7 +119,7 @@ function LandingPage() {
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     alt="Intake of raw textile spools"
-                    src="/assets/stitch/intake_spools.jpg"
+                    src="/assets/machines/high_pressure_boilers.png"
                   />
                 </div>
                 <div className="space-y-2">
@@ -139,7 +139,7 @@ function LandingPage() {
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     alt="Precision laser fabric cutting"
-                    src="/assets/stitch/cutting_laser.jpg"
+                    src="/assets/machines/large_cutting_table.png"
                   />
                 </div>
                 <div className="space-y-2">
@@ -159,7 +159,7 @@ function LandingPage() {
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     alt="Industrial sewing needle penetrate canvas"
-                    src="/assets/stitch/sewing_needle.jpg"
+                    src="/assets/machines/industrial_sewing.png"
                   />
                 </div>
                 <div className="space-y-2">
@@ -199,7 +199,7 @@ function LandingPage() {
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     alt="Full Stitch screen design preview"
-                    src="/assets/stitch/stitch_screen_overview.png"
+                    src="/assets/machines/laser_etching.png"
                   />
                   <div className="absolute inset-0 bg-secondary/10" />
                 </div>
