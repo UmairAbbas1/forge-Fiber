@@ -23,6 +23,7 @@ import {
   Factory,
   ArrowUpRight,
   Layers,
+  CheckCircle2,
   Lock,
   Compass
 } from "lucide-react";
@@ -222,143 +223,127 @@ function Page() {
     <AppShell>
       <div className="space-y-6">
         
-        {/* Header & Custom Filter Tab Rail */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-border pb-5">
-          <div>
-            <div className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-primary">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              Live Operations Control Center
-            </div>
-            <h1 className="mt-1 text-2xl md:text-3xl font-bold font-display text-foreground tracking-tight">
-              Production Flow Overview
-            </h1>
+        {/* Minimalist Top Control Bar with Smooth Slider */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+          
+          {/* View switcher toggle */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200 shrink-0">
+            <button
+              onClick={() => setViewMode("pipeline")}
+              className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all ${
+                viewMode === "pipeline" ? "bg-white text-slate-900 shadow-sm border border-slate-200/60" : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              <Gauge className="h-3.5 w-3.5 inline mr-1 text-primary" /> Flow Timeline
+            </button>
+            <button
+              onClick={() => setViewMode("kanban")}
+              className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all ${
+                viewMode === "kanban" ? "bg-white text-slate-900 shadow-sm border border-slate-200/60" : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              <Layers className="h-3.5 w-3.5 inline mr-1 text-primary" /> Kanban Board
+            </button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {/* View switcher toggle */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground block">
-                Visual View Mode
-              </label>
-              <div className="flex items-center gap-1.5 p-1 bg-muted rounded-lg border border-border">
+          {/* Account Brand Slider Rail */}
+          <div className="flex items-center gap-2 min-w-0 max-w-full overflow-hidden">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 shrink-0 hidden sm:inline">
+              Filter Brand:
+            </span>
+            <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 overflow-x-auto whitespace-nowrap scrollbar-none max-w-full">
+              {customersList.map((c) => (
                 <button
-                  onClick={() => setViewMode("pipeline")}
-                  className={`px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wide uppercase transition-all ${
-                    viewMode === "pipeline" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                  key={c}
+                  onClick={() => {
+                    setCustomer(c);
+                    setSelectedStage(null);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all shrink-0 ${
+                    customer === c
+                      ? "bg-primary text-white shadow-sm font-extrabold"
+                      : "text-slate-700 hover:text-slate-900 hover:bg-white/60"
                   }`}
                 >
-                  <Gauge className="h-3.5 w-3.5 inline mr-1" /> Flow Timeline
+                  {c === "All" ? "All Accounts" : c}
                 </button>
-                <button
-                  onClick={() => setViewMode("kanban")}
-                  className={`px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wide uppercase transition-all ${
-                    viewMode === "kanban" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Layers className="h-3.5 w-3.5 inline mr-1" /> Kanban Board
-                </button>
-              </div>
-            </div>
-
-            {/* Customer filter tabs */}
-            <div className="space-y-1.5 shrink-0">
-              <label className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground block">
-                Filter Account Brand
-              </label>
-              <div className="flex flex-wrap gap-1 p-1 bg-muted/80 rounded-lg border border-border/80 max-w-full overflow-x-auto">
-                {customersList.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => {
-                      setCustomer(c);
-                      setSelectedStage(null);
-                    }}
-                    className={`px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wide uppercase transition-all duration-200 shrink-0 ${
-                      customer === c
-                        ? "bg-white text-primary shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {c === "All" ? "All Accounts" : c}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Premium KPI grid cards */}
+        {/* High-Contrast KPI grid cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card border border-border/60 rounded-xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-navy" />
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-900" />
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Accounts Orders</span>
-                <h3 className="mt-1.5 text-3xl font-black font-display text-primary">{totalOrders}</h3>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active Accounts Orders</span>
+                <h3 className="mt-1.5 text-3xl font-black font-sans text-slate-900">{totalOrders}</h3>
               </div>
-              <div className="h-8 w-8 rounded-lg bg-navy/10 text-navy grid place-items-center shrink-0">
-                <ClipboardList className="h-4.5 w-4.5" />
+              <div className="h-9 w-9 rounded-xl bg-slate-900 text-white grid place-items-center shrink-0 shadow-sm">
+                <ClipboardList className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-success" />
-              <span>{totalVolume.toLocaleString()} units in pipeline</span>
+            <div className="mt-3 text-[10px] text-slate-500 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-emerald-600 font-bold" />
+              <span className="font-semibold text-slate-700">{totalVolume.toLocaleString()} units in pipeline</span>
             </div>
           </div>
 
-          <div className="bg-card border border-border/60 rounded-xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-gold" />
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active WIP Production</span>
-                <h3 className="mt-1.5 text-3xl font-black font-display text-primary">{inProd}</h3>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active WIP Production</span>
+                <h3 className="mt-1.5 text-3xl font-black font-sans text-slate-900">{inProd}</h3>
               </div>
-              <div className="h-8 w-8 rounded-lg bg-gold/15 text-warning-foreground grid place-items-center shrink-0">
-                <Factory className="h-4.5 w-4.5" />
+              <div className="h-9 w-9 rounded-xl bg-primary text-white grid place-items-center shrink-0 shadow-sm">
+                <Factory className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold animate-ping" />
-              <span>Conversion active on lines</span>
+            <div className="mt-3 text-[10px] text-slate-500 flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              <span className="font-medium text-slate-700">Conversion active on lines</span>
             </div>
           </div>
 
-          <div className="bg-card border border-border/60 rounded-xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-success" />
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-600" />
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Dispatched &amp; Shipped</span>
-                <h3 className="mt-1.5 text-3xl font-black font-display text-primary">{shipped}</h3>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Dispatched &amp; Shipped</span>
+                <h3 className="mt-1.5 text-3xl font-black font-sans text-slate-900">{shipped}</h3>
               </div>
-              <div className="h-8 w-8 rounded-lg bg-success/15 text-success grid place-items-center shrink-0">
-                <Truck className="h-4.5 w-4.5" />
+              <div className="h-9 w-9 rounded-xl bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
+                <Truck className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1">
-              <BadgeCheck className="h-3.5 w-3.5 text-success" />
-              <span>POD logs registered</span>
+            <div className="mt-3 text-[10px] text-slate-500 flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+              <span className="font-medium text-slate-700">POD logs registered</span>
             </div>
           </div>
 
-          <div className="bg-card border border-border/60 rounded-xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-destructive" />
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-600" />
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">On Hold Holds</span>
-                <h3 className="mt-1.5 text-3xl font-black font-display text-primary">{onHold}</h3>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">On Hold Holds</span>
+                <h3 className="mt-1.5 text-3xl font-black font-sans text-slate-900">{onHold}</h3>
               </div>
-              <div className="h-8 w-8 rounded-lg bg-destructive/15 text-destructive grid place-items-center shrink-0">
-                <AlertOctagon className="h-4.5 w-4.5" />
+              <div className="h-9 w-9 rounded-xl bg-amber-600 text-white grid place-items-center shrink-0 shadow-sm">
+                <AlertOctagon className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1">
+            <div className="mt-3 text-[10px] text-slate-500 flex items-center gap-1">
               {onHold > 0 ? (
                 <>
-                  <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-ping" />
-                  <span className="text-destructive font-semibold">Action needed immediately</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
+                  <span className="text-amber-700 font-bold">Action needed immediately</span>
                 </>
               ) : (
-                <span>No blocking holds found</span>
+                <span className="text-slate-600">No blocking holds found</span>
               )}
             </div>
           </div>
@@ -367,16 +352,16 @@ function Page() {
         {/* Display either timeline or kanban view mode */}
         {viewMode === "pipeline" ? (
           /* 13-Stage Conversion Pipeline Dashboard */
-          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between bg-muted/10">
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div>
-                <h3 className="font-display font-bold text-sm tracking-wide uppercase text-primary">
+                <h3 className="font-sans font-bold text-sm tracking-wide uppercase text-slate-900">
                   13-Stage Conversion Flow Tracker
                 </h3>
-                <p className="text-[11px] text-muted-foreground">Select any operational node stage below to drill down into active floor orders.</p>
+                <p className="text-[11px] text-slate-500">Select any operational node stage below to drill down into active floor orders.</p>
               </div>
-              <div className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground flex items-center gap-1 bg-white border border-border rounded px-2 py-1">
-                <Gauge className="h-3.5 w-3.5 text-secondary" /> Flow Visualization
+              <div className="text-[10px] uppercase font-bold tracking-wider text-slate-700 flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1">
+                <Gauge className="h-3.5 w-3.5 text-primary" /> Flow Visualization
               </div>
             </div>
             
@@ -385,7 +370,7 @@ function Page() {
                 <div className="min-w-[1400px] relative px-4">
                   
                   {/* Horizontal flow line indicator */}
-                  <div className="absolute top-8 left-16 right-16 h-0.5 bg-border z-0" />
+                  <div className="absolute top-8 left-16 right-16 h-0.5 bg-slate-200 z-0" />
 
                   {/* Stage cards row */}
                   <div className="grid grid-cols-13 gap-3 relative z-10" style={{ gridTemplateColumns: "repeat(13, minmax(0, 1fr))" }}>
@@ -399,15 +384,15 @@ function Page() {
                         <button
                           key={s.id}
                           onClick={() => setSelectedStage(s.id)}
-                          className={`group text-left rounded-xl border p-3 transition-all duration-300 focus:outline-none flex flex-col justify-between h-40 ${
+                          className={`group text-left rounded-xl border p-3 transition-all duration-200 focus:outline-none flex flex-col justify-between h-40 ${
                             active
-                              ? "border-secondary bg-primary text-white shadow-lg shadow-primary/10 -translate-y-1"
-                              : "border-border bg-white hover:border-secondary hover:shadow-md hover:-translate-y-0.5"
+                              ? "border-primary bg-primary text-white shadow-md"
+                              : "border-slate-200 bg-white hover:border-primary hover:shadow-sm"
                           }`}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <div className={`h-6 w-6 rounded-lg grid place-items-center text-[10px] font-bold ${
-                              active ? "bg-white text-primary" : "bg-primary/10 text-primary"
+                            <div className={`h-6 w-6 rounded-lg grid place-items-center text-[11px] font-bold ${
+                              active ? "bg-white text-primary" : "bg-slate-100 text-slate-900 border border-slate-200"
                             }`}>
                               {s.id}
                             </div>
@@ -415,36 +400,37 @@ function Page() {
                             {/* Pulsing indicator if active orders occupy this stage */}
                             {hasActiveOrders ? (
                               <span className="relative flex h-2.5 w-2.5">
-                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                                  active ? "bg-white" : "bg-success"
+                                <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                                  active ? "bg-white" : "bg-emerald-600"
                                 }`}></span>
                                 <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                                  active ? "bg-white" : "bg-success"
+                                  active ? "bg-white" : "bg-emerald-600"
                                 }`}></span>
                               </span>
                             ) : (
-                              <Icon className={`h-4.5 w-4.5 ${active ? "text-white" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
+                              <Icon className={`h-4.5 w-4.5 ${active ? "text-white" : "text-slate-400 group-hover:text-primary transition-colors"}`} />
                             )}
                           </div>
                           
                           <div className="mt-3">
-                            <div className={`text-[11px] font-bold leading-snug line-clamp-2 ${active ? "text-white" : "text-primary"}`}>
+                            {/* STAGE NAME IS SOLID BLACK COLOUR AS REQUESTED */}
+                            <div className={`text-[11px] font-black leading-snug line-clamp-2 ${active ? "text-white" : "text-black"}`}>
                               {s.name}
                             </div>
                             {"equipment" in s && s.equipment && (
-                              <div className={`mt-1.5 inline-block text-[9px] font-medium px-1.5 py-0.5 rounded leading-none ${
-                                active ? "bg-white/15 text-white/90" : "bg-muted text-muted-foreground"
+                              <div className={`mt-1.5 inline-block text-[9px] font-bold px-1.5 py-0.5 rounded leading-none ${
+                                active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700 border border-slate-200/60"
                               }`}>
                                 {s.equipment.split(",")[0]}
                               </div>
                             )}
                           </div>
 
-                          <div className="mt-3 pt-2 border-t border-border/40 w-full flex justify-between items-center">
+                          <div className="mt-3 pt-2 border-t border-slate-200/60 w-full flex justify-between items-center">
                             <span className={`text-[9px] uppercase tracking-wider font-extrabold ${
-                              active ? "text-white/70" : "text-muted-foreground"
+                              active ? "text-white/80" : "text-slate-500"
                             }`}>
-                              Active Orders
+                              Active
                             </span>
                             <span className={`text-[11px] font-black ${
                               active ? "text-white bg-white/20 px-2 py-0.5 rounded-full" : "text-secondary"
@@ -466,9 +452,9 @@ function Page() {
                           {cp ? (
                             <div className="flex flex-col items-center w-full px-1.5">
                               <div className="h-4 w-0.5 bg-dashed border-l-2 border-dashed border-gold" />
-                              <div className="mt-1 bg-gold/10 border border-gold/40 rounded-lg p-2 flex items-center gap-1.5 justify-center w-full shadow-sm animate-scale-up">
-                                <Star className="h-3.5 w-3.5 fill-gold text-gold shrink-0" />
-                                <div className="text-[9px] font-black text-warning-foreground text-center uppercase tracking-wide leading-none shrink-0 truncate max-w-full">
+                              <div className="mt-1 bg-slate-100 border border-slate-300 rounded-lg p-2 flex items-center gap-1.5 justify-center w-full shadow-sm">
+                                <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500 shrink-0" />
+                                <div className="text-[9px] font-black text-slate-900 text-center uppercase tracking-wide leading-none shrink-0 truncate max-w-full">
                                   {cp.name}
                                 </div>
                               </div>

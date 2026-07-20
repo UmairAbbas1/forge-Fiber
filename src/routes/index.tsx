@@ -132,16 +132,6 @@ function LandingPage() {
                   src="/assets/stitch/hero_factory.jpg"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent"></div>
-                {/* Floating Badge */}
-                <div className="absolute bottom-6 right-6 glass-card border border-outline-variant/60 p-4 rounded-lg flex items-center gap-3 animate-bounce shadow-lg">
-                  <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white shadow-inner">
-                    <ShieldCheck className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="font-label-caps text-xs font-bold text-primary">Quality Certified</p>
-                    <p className="font-mono text-xs text-on-surface-variant font-medium">Batch #7721-QC</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
