@@ -24,7 +24,7 @@ const DEMO_USERS = [
 function LoginPage() {
   const navigate = useNavigate();
   const { signIn, signUp, user } = useAuth();
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -48,7 +48,7 @@ function LoginPage() {
 
     setSubmitting(true);
     setErrorMsg("");
-    
+
     try {
       const { error } = await signIn(email, password);
       if (error) {
@@ -75,15 +75,15 @@ function LoginPage() {
 
     try {
       let { error } = await signIn(demoEmail, "password123");
-      
+
       // If user does not exist on Supabase Auth, automatically register them!
       if (error && (
-        error.message.toLowerCase().includes("invalid login credentials") || 
-        error.message.toLowerCase().includes("does not exist") || 
+        error.message.toLowerCase().includes("invalid login credentials") ||
+        error.message.toLowerCase().includes("does not exist") ||
         error.message.toLowerCase().includes("email not confirmed")
       )) {
         const { error: signUpError } = await signUp(demoEmail, "password123", role, customerName);
-        
+
         if (signUpError) {
           if (signUpError.message.includes("Email confirmation")) {
             setErrorMsg("Email confirmation is enabled. Please disable 'Confirm email' in your Supabase Auth provider settings to use quick login.");
@@ -93,7 +93,7 @@ function LoginPage() {
           setSubmitting(false);
           return;
         }
-        
+
         // Retry logging in now that user is registered
         const retry = await signIn(demoEmail, "password123");
         error = retry.error;
@@ -117,34 +117,13 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen bg-surface flex flex-col md:flex-row items-stretch justify-center industrial-grid p-4 md:p-0">
-      
-      {/* Side Brand panel */}
-      <div className="hidden lg:flex lg:w-5/12 bg-primary p-12 flex-col justify-between relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 industrial-grid"></div>
-        <div className="z-10 space-y-4">
-          <div className="inline-block p-3 rounded-2xl bg-white shadow-2xl border border-white/30">
-            <img src="/favicon.png" alt="Forge & Fabric Logo" className="h-20 w-20 object-contain" />
-          </div>
-          <div>
-            <Link to="/" className="font-display text-2xl font-bold text-white tracking-wider uppercase hover:opacity-90 transition-opacity block">
-              Forge &amp; Fabric
-            </Link>
-            <span className="text-[11px] font-mono tracking-widest text-white/80 uppercase">
-              Industrial Garment Conversion Systems
-            </span>
-          </div>
-        </div>
-        <div className="z-10 space-y-6">
-          <h2 className="font-display text-4xl text-white font-normal leading-tight">
-            Precision Garment Conversion at Industrial Scale.
-          </h2>
-          <p className="font-sans text-sm text-white/90 leading-relaxed max-w-md">
-            Full WIP operations control, material ledger reconciliation, and multi-checkpoint quality assurance in one integrated platform.
-          </p>
-        </div>
-        <div className="z-10 text-xs text-white/70 font-mono">
-          v1.4.0 · Industrial Production Operations
-        </div>
+
+      {/* Side Brand panel - Large Centered Logo with Bold Terracotta Separation Line */}
+      <div className="hidden lg:flex lg:w-5/12 bg-white p-8 items-center justify-center relative overflow-hidden border-r-[10px] border-primary">
+        <div className="absolute inset-0 opacity-5 industrial-grid pointer-events-none"></div>
+        <Link to="/" className="z-10 transform hover:scale-105 transition-all duration-300">
+          <img src="/favicon.png" alt="Forge & Fabric Logo" className="w-72 h-72 md:w-96 md:h-96 object-contain" />
+        </Link>
       </div>
 
       {/* Main login panel */}
