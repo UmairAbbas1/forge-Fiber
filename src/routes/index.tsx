@@ -46,17 +46,18 @@ function LandingPage() {
   }, []);
 
   return (
-    <div className="bg-surface text-on-surface font-body-md overflow-x-hidden min-h-screen">
+    <div className="bg-white text-foreground font-sans overflow-x-hidden min-h-screen">
       {/* TopNavBar */}
       <nav
-        className={`fixed top-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/50 transition-all duration-300 ${
-          scrolled ? "h-16 shadow-md" : "h-20"
+        className={`fixed top-0 w-full z-50 bg-white/95 border-b border-border transition-all duration-300 ${
+          scrolled ? "h-16 shadow-sm" : "h-20"
         }`}
       >
         <div className="flex justify-between items-center px-6 md:px-12 h-full w-full max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
-            <span className="font-display-lg text-lg md:text-xl font-extrabold text-primary tracking-tight uppercase">
-              Forge & Fabric
+          <div className="flex items-center gap-2.5">
+            <img src="/favicon.png" alt="Forge & Fabric Logo" className="h-8 w-8 rounded-lg object-contain" />
+            <span className="font-display text-xl md:text-2xl font-bold text-primary tracking-tight">
+              Forge &amp; Fabric
             </span>
           </div>
           
@@ -127,10 +128,10 @@ function LandingPage() {
               <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden shadow-2xl border border-outline-variant">
                 <img
                   className="w-full h-full object-cover"
-                  alt="Industrial sewing machine stitching navy denim"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPqO4hbdfBxxskRI2CfHS331oukD5X_ujOGIGlBXlTIim7rsn9rIOaGdSYVjkycWXs85iB7WMlfAvJw7_vOH-xkncP6uth0qyjAZm36R2yrAyTPrQPlLFhgxTb5d-octMo_HN3CrC6hRJ7BgrJChxYM451cFLFFPZUNz7qaH18jN8vkbdrQjLUOXngCDiXgKUsgTo6XP2amKdFaiSE0xOAHPcKJ1lNDqTCurtUGAu5sKHz6Ry2rStj_vwa7ws3uycZY5F6RplNKmw"
+                  alt="Industrial textile factory precision garment production"
+                  src="/assets/stitch/hero_factory.jpg"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-container/40 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent"></div>
                 {/* Floating Badge */}
                 <div className="absolute bottom-6 right-6 glass-card border border-outline-variant/60 p-4 rounded-lg flex items-center gap-3 animate-bounce shadow-lg">
                   <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white shadow-inner">
@@ -138,7 +139,7 @@ function LandingPage() {
                   </div>
                   <div>
                     <p className="font-label-caps text-xs font-bold text-primary">Quality Certified</p>
-                    <p className="font-mono-data text-xs text-on-surface-variant font-medium">Batch #7721-QC</p>
+                    <p className="font-mono text-xs text-on-surface-variant font-medium">Batch #7721-QC</p>
                   </div>
                 </div>
               </div>
@@ -147,135 +148,143 @@ function LandingPage() {
         </section>
 
         {/* Stats Strip */}
-        <section className="bg-primary-container text-on-primary-container py-12 px-6 md:px-12 shadow-lg">
+        <section className="bg-primary text-white py-12 px-6 md:px-12 shadow-lg">
           <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-8">
             <div className="flex flex-col min-w-[150px]">
-              <span className="font-display-lg text-3xl md:text-4xl text-white font-extrabold">72</span>
-              <span className="font-label-caps text-xs uppercase tracking-wider text-secondary font-bold mt-1">Sewing Machines</span>
+              <span className="font-display text-3xl md:text-4xl text-white font-normal">2,450+</span>
+              <span className="font-label-caps text-xs uppercase tracking-wider text-white/80 font-bold mt-1">Active Machines</span>
             </div>
-            <div className="h-12 w-px bg-outline-variant/20 hidden md:block"></div>
+            <div className="h-12 w-px bg-white/20 hidden md:block"></div>
             
             <div className="flex flex-col min-w-[150px]">
-              <span className="font-display-lg text-3xl md:text-4xl text-white font-extrabold">13-Stage</span>
-              <span className="font-label-caps text-xs uppercase tracking-wider text-secondary font-bold mt-1">Tracked Pipeline</span>
+              <span className="font-display text-3xl md:text-4xl text-white font-normal">5-Phase</span>
+              <span className="font-label-caps text-xs uppercase tracking-wider text-white/80 font-bold mt-1">Conversion Process</span>
             </div>
-            <div className="h-12 w-px bg-outline-variant/20 hidden md:block"></div>
+            <div className="h-12 w-px bg-white/20 hidden md:block"></div>
             
             <div className="flex flex-col min-w-[150px]">
-              <span className="font-display-lg text-3xl md:text-4xl text-white font-extrabold">94%</span>
-              <span className="font-label-caps text-xs uppercase tracking-wider text-secondary font-bold mt-1">On-Time Delivery</span>
+              <span className="font-display text-3xl md:text-4xl text-white font-normal">99.8%</span>
+              <span className="font-label-caps text-xs uppercase tracking-wider text-white/80 font-bold mt-1">On-Time Delivery</span>
             </div>
-            <div className="h-12 w-px bg-outline-variant/20 hidden md:block"></div>
+            <div className="h-12 w-px bg-white/20 hidden md:block"></div>
             
             <div className="flex flex-col min-w-[150px]">
-              <span className="font-display-lg text-3xl md:text-4xl text-white font-extrabold">5</span>
-              <span className="font-label-caps text-xs uppercase tracking-wider text-secondary font-bold mt-1">Quality Checkpoints</span>
+              <span className="font-display text-3xl md:text-4xl text-white font-normal">144K</span>
+              <span className="font-label-caps text-xs uppercase tracking-wider text-white/80 font-bold mt-1">Daily Checkpoints</span>
             </div>
           </div>
         </section>
 
-        {/* How It Works (Bento-style Grid) */}
+        {/* How It Works (Bento-style Grid with Stitch Cards) */}
         <section className="py-24 px-6 md:px-12 bg-surface">
           <div className="max-w-7xl mx-auto space-y-16">
             <div className="text-center max-w-2xl mx-auto space-y-4">
-              <h2 className="font-display-lg text-3xl md:text-4xl font-extrabold text-primary">How It Works</h2>
-              <p className="font-body-lg text-base text-on-surface-variant leading-relaxed">
-                Our 5-phase conversion process ensures every yard of customer material is accounted for and transformed into perfection.
+              <h2 className="font-display text-3xl md:text-5xl font-normal text-foreground">The Conversion Process</h2>
+              <p className="font-sans text-base text-muted-foreground leading-relaxed">
+                End-to-end visibility across all five stages of production.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-              {/* Phase 1: Intake */}
-              <div className="md:col-span-3 bg-surface-container-low border border-outline-variant p-8 rounded-xl flex flex-col justify-between group hover:border-secondary transition-all duration-300 shadow-sm hover:shadow-md">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono-data text-xs text-secondary font-bold uppercase tracking-wider">PHASE 01</span>
-                    <Package className="h-8 w-8 text-primary group-hover:text-secondary transition-colors" />
-                  </div>
-                  <h3 className="font-headline-md text-xl font-bold">Intake &amp; Materials</h3>
-                  <ul className="font-body-md text-sm text-on-surface-variant space-y-2">
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> 
-                      <span>PO &amp; Tech Pack reconciliation</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> 
-                      <span>Material receiving &amp; discrepancy reporting</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="mt-8 overflow-hidden rounded-lg h-40">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              {/* Card 1: Intake */}
+              <div className="bg-card border border-border p-6 rounded-2xl flex flex-col justify-between group hover:border-primary transition-all duration-300 shadow-sm hover:-translate-y-[2px]">
+                <div className="h-48 w-full rounded-lg mb-4 overflow-hidden bg-muted">
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    alt="Intake of garment components"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuPLPH0-BYnKmtrZQfIxGkjICMwo9LWxAJVFa9PYIE2VzXZFueMZp5Pi9AtmukGZmb69Y4sGJi_s5VGXEXnndaJNoLzan_Io9eQFkMe6uYkM2UD0_axHYqVlFeC6gFQdo8w4sRAymRcOY8G6UkJNowwtSg8svgLFnjHV931WhEnHw2WyRpMeX50f1Tth0m0t-9pDgRQjsAXw5R_U54TL9X4axvXuOA9-10qTibM6jnUkHk23nRWKRbCFKSemycaQQydFAl-_8_EqQ"
+                    alt="Intake of raw textile spools"
+                    src="/assets/stitch/intake_spools.jpg"
                   />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Package className="h-5 w-5" />
+                    <h3 className="font-sans text-lg font-bold text-foreground">Intake</h3>
+                  </div>
+                  <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+                    Automated logging and verification of raw textile materials upon arrival.
+                  </p>
                 </div>
               </div>
 
-              {/* Phase 2: Cutting */}
-              <div className="md:col-span-3 bg-surface-container-low border border-outline-variant p-8 rounded-xl flex flex-col justify-between group hover:border-secondary transition-all duration-300 shadow-sm hover:shadow-md">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono-data text-xs text-secondary font-bold uppercase tracking-wider">PHASE 02</span>
-                    <Cpu className="h-8 w-8 text-primary group-hover:text-secondary transition-colors" />
-                  </div>
-                  <h3 className="font-headline-md text-xl font-bold">Precision Cutting</h3>
-                  <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
-                    Marker optimization using our 40ft automated cutter for maximum material yield and zero-drift accuracy.
-                  </p>
-                </div>
-                <div className="mt-8 overflow-hidden rounded-lg h-40">
+              {/* Card 2: Cutting */}
+              <div className="bg-card border border-border p-6 rounded-2xl flex flex-col justify-between group hover:border-primary transition-all duration-300 shadow-sm hover:-translate-y-[2px]">
+                <div className="h-48 w-full rounded-lg mb-4 overflow-hidden bg-muted">
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    alt="Precision fabric cutting machinery"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgKyJF9Fco1ogmRsbHNTM-Y0tYn78OvjtRVI-zUym3bjIfgLxuAokiJfcWUPRXgl6tSXqXZ02HKqh_kOSn0oThOzMA2wbJGwkgNFyDXAVOqNX2XSjeJbgybzmVEN71RjggJ6PgU96KxZR2sgDM98ygXkIEavShRtxOrvoMMb3j5qMPR4FkWgw_35pR_2c_hBJA3dslkg0Y04WL44V-aV4q8Zvu7WQjGTIVMqZid45VrpY0R6TRZHZTiMQXJ10XEVGplJn06fQTQfY"
+                    alt="Precision laser fabric cutting"
+                    src="/assets/stitch/cutting_laser.jpg"
                   />
                 </div>
-              </div>
-
-              {/* Phase 3: Sewing */}
-              <div className="md:col-span-2 bg-primary-container text-on-primary-container p-8 rounded-xl flex flex-col justify-between hover:shadow-2xl transition-all duration-300 group shadow-md">
-                <div className="space-y-4">
-                  <span className="font-mono-data text-xs text-secondary font-bold uppercase tracking-wider">PHASE 03</span>
-                  <h3 className="font-headline-md text-xl font-bold text-white">Sewing &amp; Assembly</h3>
-                  <p className="font-body-md text-sm text-on-primary-container leading-relaxed">
-                    72 industrial machines running synchronized bundling protocols for high-capacity throughput.
-                  </p>
-                </div>
-                <div className="mt-8 flex justify-end">
-                  <Factory className="h-16 w-16 text-secondary/30 group-hover:text-secondary transition-colors duration-300" />
-                </div>
-              </div>
-
-              {/* Phase 4: Wash */}
-              <div className="md:col-span-2 bg-surface-container-low border border-outline-variant p-8 rounded-xl flex flex-col justify-between group hover:border-secondary transition-all duration-300 shadow-sm hover:shadow-md">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono-data text-xs text-secondary font-bold uppercase tracking-wider">PHASE 04</span>
-                    <Droplets className="h-8 w-8 text-primary group-hover:text-secondary transition-colors" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Cpu className="h-5 w-5" />
+                    <h3 className="font-sans text-lg font-bold text-foreground">Cutting</h3>
                   </div>
-                  <h3 className="font-headline-md text-xl font-bold">Wash &amp; Finish</h3>
-                  <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
-                    Sustainable laundry systems including Jeanologia lasers and ozone distressing.
+                  <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+                    Precision CAD-driven pattern separation minimizing material waste.
                   </p>
                 </div>
-                <div className="h-16" />
               </div>
 
-              {/* Phase 5: QC */}
-              <div className="md:col-span-2 bg-secondary-container text-on-secondary-container p-8 rounded-xl flex flex-col justify-between hover:bg-secondary hover:text-white transition-all duration-300 group shadow-sm">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono-data text-xs text-on-secondary-container group-hover:text-white transition-colors font-bold uppercase tracking-wider">PHASE 05</span>
-                    <ShieldCheck className="h-8 w-8 text-on-secondary-container group-hover:text-white transition-colors" />
+              {/* Card 3: Sewing */}
+              <div className="bg-card border border-border p-6 rounded-2xl flex flex-col justify-between group hover:border-primary transition-all duration-300 shadow-sm hover:-translate-y-[2px]">
+                <div className="h-48 w-full rounded-lg mb-4 overflow-hidden bg-muted">
+                  <img
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    alt="Industrial sewing needle penetrate canvas"
+                    src="/assets/stitch/sewing_needle.jpg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Factory className="h-5 w-5" />
+                    <h3 className="font-sans text-lg font-bold text-foreground">Sewing</h3>
                   </div>
-                  <h3 className="font-headline-md text-xl font-bold">QC &amp; Dispatch</h3>
-                  <p className="font-body-md text-sm opacity-90 leading-relaxed">
-                    Final 5-point inspection before high-security packing and international shipping.
+                  <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+                    Assembly line tracking with real-time throughput analytics.
                   </p>
                 </div>
-                <div className="h-16" />
+              </div>
+
+              {/* Card 4: Finishing */}
+              <div className="bg-card border border-border p-6 rounded-2xl flex flex-col justify-between group hover:border-primary transition-all duration-300 shadow-sm hover:-translate-y-[2px]">
+                <div className="h-48 w-full rounded-lg mb-4 overflow-hidden bg-muted">
+                  <img
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    alt="Garment industrial pressing steam machine"
+                    src="/assets/stitch/finishing_steam.jpg"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Droplets className="h-5 w-5" />
+                    <h3 className="font-sans text-lg font-bold text-foreground">Finishing</h3>
+                  </div>
+                  <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+                    Pressing, tagging, and final preparatory steps before inspection.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 5: Dispatch */}
+              <div className="bg-card border border-border p-6 rounded-2xl flex flex-col justify-between group hover:border-secondary transition-all duration-300 shadow-sm hover:-translate-y-[2px]">
+                <div className="h-48 w-full rounded-lg mb-4 overflow-hidden bg-muted relative">
+                  <img
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    alt="Full Stitch screen design preview"
+                    src="/assets/stitch/stitch_screen_overview.png"
+                  />
+                  <div className="absolute inset-0 bg-secondary/10" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-secondary">
+                    <ShieldCheck className="h-5 w-5" />
+                    <h3 className="font-sans text-lg font-bold text-foreground">QC &amp; Dispatch</h3>
+                  </div>
+                  <p className="font-sans text-xs text-muted-foreground leading-relaxed">
+                    Final AQL 5-point inspection before packing and shipment.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

@@ -138,11 +138,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     : reportsNav;
 
   const roleColors: Record<string, string> = {
-    admin: "bg-red-500/10 text-red-500 border-red-500/25",
-    merchandiser: "bg-blue-500/10 text-blue-500 border-blue-500/25",
-    production: "bg-emerald-500/10 text-emerald-500 border-emerald-500/25",
-    qc: "bg-amber-500/10 text-amber-600 dark:text-amber-500 border-amber-500/25",
-    customer: "bg-slate-500/10 text-slate-500 border-slate-500/25",
+    admin: "bg-primary/10 text-primary border-primary/25",
+    merchandiser: "bg-primary/10 text-primary border-primary/25",
+    production: "bg-secondary/10 text-secondary border-secondary/25",
+    qc: "bg-tertiary/10 text-tertiary border-tertiary/25",
+    customer: "bg-muted text-muted-foreground border-border",
   };
 
   // Role scoped notifications filtering

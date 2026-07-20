@@ -100,7 +100,7 @@ function GlobalLoadingScreen({ error }: { error?: string | null }) {
           alt="Logo" 
           className="h-10 w-10 rounded-lg object-cover select-none" 
         />
-        <span className="font-bold text-base tracking-widest uppercase text-foreground">
+        <span className="font-display font-bold text-lg tracking-wider text-primary">
           Forge &amp; Fabric
         </span>
       </div>
@@ -181,7 +181,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" },
     ],
   }),
   shellComponent: RootShell,

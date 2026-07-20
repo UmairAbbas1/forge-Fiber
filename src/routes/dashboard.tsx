@@ -184,36 +184,36 @@ function Page() {
       id: "phase1",
       title: "Sourcing & Materials",
       stages: [1, 2, 3],
-      accentClass: "bg-blue-600",
-      borderClass: "border-blue-600/30",
-      badgeColor: "bg-blue-100 text-blue-700",
+      accentClass: "bg-primary",
+      borderClass: "border-primary/30",
+      badgeColor: "bg-primary/10 text-primary",
       description: "Order Intake, Consignments & Inspections"
     },
     {
       id: "phase2",
       title: "Planning & Cutting",
       stages: [4, 5, 6],
-      accentClass: "bg-amber-500",
-      borderClass: "border-amber-500/30",
-      badgeColor: "bg-amber-100 text-amber-700",
+      accentClass: "bg-tertiary",
+      borderClass: "border-tertiary/30",
+      badgeColor: "bg-tertiary/10 text-tertiary",
       description: "PP Planning, Cutting Room & Line Feeding"
     },
     {
       id: "phase3",
       title: "Sewing & Finishing",
       stages: [7, 8, 9, 10],
-      accentClass: "bg-indigo-600",
-      borderClass: "border-indigo-600/30",
-      badgeColor: "bg-indigo-100 text-indigo-700",
+      accentClass: "bg-primary",
+      borderClass: "border-primary/30",
+      badgeColor: "bg-primary/10 text-primary",
       description: "Sewing Assembly, Wash Finishing & ozone"
     },
     {
       id: "phase4",
       title: "QC & Logistics",
       stages: [11, 12, 13],
-      accentClass: "bg-emerald-600",
-      borderClass: "border-emerald-600/30",
-      badgeColor: "bg-emerald-100 text-emerald-700",
+      accentClass: "bg-secondary",
+      borderClass: "border-secondary/30",
+      badgeColor: "bg-secondary/10 text-secondary",
       description: "AQL Quality Audits, Packing & POD Shipments"
     }
   ];
@@ -223,14 +223,14 @@ function Page() {
       <div className="space-y-6">
         
         {/* Header & Custom Filter Tab Rail */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-border/60 pb-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between border-b border-border pb-5">
           <div>
-            <div className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-secondary">
-              <span className="h-1.5 w-1.5 rounded-full bg-secondary animate-pulse" />
+            <div className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-primary">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               Live Operations Control Center
             </div>
-            <h1 className="mt-1 text-2xl md:text-3xl font-extrabold text-primary tracking-tight">
-              Production Flow overview
+            <h1 className="mt-1 text-2xl md:text-3xl font-bold font-display text-foreground tracking-tight">
+              Production Flow Overview
             </h1>
           </div>
 
@@ -244,7 +244,7 @@ function Page() {
                 <button
                   onClick={() => setViewMode("pipeline")}
                   className={`px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wide uppercase transition-all ${
-                    viewMode === "pipeline" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    viewMode === "pipeline" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <Gauge className="h-3.5 w-3.5 inline mr-1" /> Flow Timeline
@@ -252,7 +252,7 @@ function Page() {
                 <button
                   onClick={() => setViewMode("kanban")}
                   className={`px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wide uppercase transition-all ${
-                    viewMode === "kanban" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    viewMode === "kanban" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <Layers className="h-3.5 w-3.5 inline mr-1" /> Kanban Board

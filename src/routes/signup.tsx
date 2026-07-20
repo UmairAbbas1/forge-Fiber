@@ -82,39 +82,49 @@ function SignupPage() {
     <div className="min-h-screen bg-surface flex flex-col md:flex-row items-stretch justify-center industrial-grid p-4 md:p-0">
       
       {/* Side Brand panel */}
-      <div className="hidden lg:flex lg:w-5/12 bg-primary-container p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-5/12 bg-primary p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 industrial-grid"></div>
-        <div className="z-10">
-          <Link to="/" className="font-display-lg text-lg font-bold text-white tracking-widest uppercase hover:opacity-80 transition-opacity">
-            Forge & Fabric
-          </Link>
+        <div className="z-10 space-y-4">
+          <div className="inline-block p-3 rounded-2xl bg-white shadow-2xl border border-white/30">
+            <img src="/favicon.png" alt="Forge & Fabric Logo" className="h-20 w-20 object-contain" />
+          </div>
+          <div>
+            <Link to="/" className="font-display text-2xl font-bold text-white tracking-wider uppercase hover:opacity-90 transition-opacity block">
+              Forge &amp; Fabric
+            </Link>
+            <span className="text-[11px] font-mono tracking-widest text-white/80 uppercase">
+              Production Floor Network
+            </span>
+          </div>
         </div>
         <div className="z-10 space-y-6">
-          <h2 className="font-display-lg text-4xl text-white font-extrabold leading-tight">
-            Join the Production Floor Network
+          <h2 className="font-display text-4xl text-white font-normal leading-tight">
+            Join the Production Floor Network.
           </h2>
-          <p className="font-body-lg text-base text-on-primary-container leading-relaxed max-w-md">
+          <p className="font-sans text-sm text-white/90 leading-relaxed max-w-md">
             Create an operational profile to connect with materials receiving, cut panel tracking, and quality management lines.
           </p>
         </div>
-        <div className="z-10 text-xs text-on-primary-container/55 font-mono-data">
-          v1.4.0 · Made for Production Teams
+        <div className="z-10 text-xs text-white/70 font-mono">
+          v1.4.0 · Industrial Production Operations
         </div>
       </div>
 
       {/* Main signup panel */}
       <div className="flex-1 flex flex-col justify-center items-center py-12 px-6 lg:px-16 bg-white shadow-xl lg:shadow-none max-w-xl mx-auto lg:max-w-none lg:mx-0 lg:w-7/12">
         <div className="w-full max-w-md space-y-8">
-          <div className="space-y-2">
-            <Link to="/" className="lg:hidden text-xs text-secondary hover:underline mb-4 inline-block font-semibold">
-              ← Back to home
-            </Link>
-            <h1 className="font-display-lg text-3xl font-extrabold text-primary">
-              Register User Profile
-            </h1>
-            <p className="font-body-md text-sm text-on-surface-variant">
-              Create your account credentials and select your functional role below.
-            </p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <img src="/favicon.png" alt="Logo" className="h-12 w-12 rounded-xl object-contain p-1 border border-border shadow-sm" />
+              <div>
+                <h1 className="font-display text-3xl font-bold text-foreground">
+                  Register User Profile
+                </h1>
+                <p className="font-sans text-xs text-muted-foreground">
+                  Create your account credentials and select your functional role below.
+                </p>
+              </div>
+            </div>
           </div>
 
           {errorMsg && (
@@ -126,34 +136,34 @@ function SignupPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-primary uppercase tracking-wider block">
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-outline" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@forgefabric.com"
-                  className="w-full pl-9 pr-3 h-10 rounded-lg border border-outline-variant bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary"
+                  className="w-full pl-9 pr-3 h-10 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                   disabled={submitting}
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-primary uppercase tracking-wider block">
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block">
                 Password
               </label>
               <div className="relative">
-                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-outline" />
+                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Strong password required"
-                  className="w-full pl-9 pr-3 h-10 rounded-lg border border-outline-variant bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary"
+                  className="w-full pl-9 pr-3 h-10 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                   disabled={submitting}
                 />
               </div>
@@ -161,24 +171,24 @@ function SignupPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-primary uppercase tracking-wider block">
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block">
                 Confirm Password
               </label>
               <div className="relative">
-                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-outline" />
+                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter password"
-                  className="w-full pl-9 pr-3 h-10 rounded-lg border border-outline-variant bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary"
+                  className="w-full pl-9 pr-3 h-10 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
                   disabled={submitting}
                 />
               </div>
             </div>
 
-            <div className="space-y-1 p-3 rounded-lg border border-outline-variant bg-surface-container-low animate-fade-in">
-              <label className="text-xs font-semibold text-primary uppercase tracking-wider block mb-1">
+            <div className="space-y-1 p-3 rounded-lg border border-border bg-muted/40 animate-fade-in">
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-1">
                 Associate Customer Company
               </label>
               <input
@@ -186,7 +196,7 @@ function SignupPage() {
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="Enter your company name"
-                className="w-full px-3 h-10 rounded-lg border border-outline-variant bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                className="w-full px-3 h-10 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                 disabled={submitting}
                 required
               />
@@ -197,7 +207,7 @@ function SignupPage() {
 
             <button
               type="submit"
-              className="w-full bg-primary-container text-on-primary-container hover:bg-black hover:text-white h-11 rounded-lg font-headline-sm text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-200"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-11 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-all shadow-sm"
               disabled={submitting}
             >
               {submitting ? "Creating Profile..." : "Create Account"}
@@ -208,7 +218,7 @@ function SignupPage() {
           <div className="text-center">
             <span className="text-xs text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" className="text-secondary font-semibold hover:underline">
+              <Link to="/login" className="text-primary font-semibold hover:underline">
                 Sign In
               </Link>
             </span>
