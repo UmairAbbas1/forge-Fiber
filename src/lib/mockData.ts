@@ -13,6 +13,14 @@ export interface Order {
   current_stage: number;
   qty: number;
   notes?: string;
+  style_no?: string;
+  style_description?: string;
+  color?: string;
+  planned_ship_date?: string;
+  material_status?: string;
+  delivered_qty?: number;
+  open_balance?: number;
+  delivery_status?: string;
 }
 
 export interface Material {
@@ -77,6 +85,31 @@ export interface Carton {
   dispatch_status: "Ready" | "Shipped";
   pod_reference: string;
   ship_date: string;
+  carrier?: string;
+  customer_acceptance?: "Pending" | "Accepted" | "Rejected" | "Claims / Review";
+  invoice_ref?: string;
+  remarks?: string;
+}
+
+export type WIPMovementType = "IN" | "OUT" | "REWORK" | "REJECT" | "HOLD" | "ADJUSTMENT";
+export type WIPQCStatus = "Not Checked" | "Pass" | "Rework" | "Reject" | "Hold" | "Customer Review";
+
+export interface WIPLog {
+  log_id: string;
+  order_id: string;
+  stage_id: number;
+  movement_type: WIPMovementType;
+  qty_in: number;
+  qty_out: number;
+  rework_qty: number;
+  reject_qty: number;
+  net_wip_impact: number;
+  qc_status: WIPQCStatus;
+  operator?: string;
+  batch_lot?: string;
+  remarks?: string;
+  updated_by?: string;
+  log_date: string;
 }
 
 export const STAGES = [
@@ -149,6 +182,8 @@ export const ORDERS: Order[] = Array.from({ length: 42 }, (_, i) => {
     : rnd() > 0.9 ? "On Hold"
     : rnd() > 0.75 ? "Open"
     : "In Production";
+  const qtyVal = range(500, 5000);
+  const delVal = status === "Shipped" ? qtyVal : (stage === 13 ? range(100, qtyVal) : 0);
   return {
     order_id: `FF-${(2600 + i).toString()}`,
     customer_name: pick(CUSTOMERS),
@@ -158,10 +193,36 @@ export const ORDERS: Order[] = Array.from({ length: 42 }, (_, i) => {
     status,
     created_date: dateDaysAgo(range(1, 60)),
     current_stage: stage,
-    qty: range(500, 5000),
+    qty: qtyVal,
     notes: "Initial order specifications uploaded and verified.",
+    style_no: `STL-${range(100, 999)}`,
+    style_description: `5-Pocket Denim ${pick(COLORS)}`,
+    color: pick(COLORS),
+    planned_ship_date: dateDaysAgo(range(-30, -5)),
+    material_status: stage >= 3 ? "Approved" : "Pending",
+    delivered_qty: delVal,
+    open_balance: qtyVal - delVal,
+    delivery_status: status === "Shipped" ? "Delivered" : (stage >= 12 ? "Ready to Ship" : "Open"),
   };
 });
+
+export const MOCK_WIP_LOGS: WIPLog[] = ORDERS.slice(0, 15).map((o, idx) => ({
+  log_id: `LOG-${1000 + idx}`,
+  order_id: o.order_id,
+  stage_id: o.current_stage,
+  movement_type: "IN",
+  qty_in: o.qty,
+  qty_out: Math.floor(o.qty * 0.95),
+  rework_qty: Math.floor(o.qty * 0.03),
+  reject_qty: Math.floor(o.qty * 0.02),
+  net_wip_impact: o.qty,
+  qc_status: "Pass",
+  operator: `Line ${((idx % 5) + 1)} Manager`,
+  batch_lot: `LOT-2026-${100 + idx}`,
+  remarks: "Normal stage movement log",
+  updated_by: "prod@forgefabric.com",
+  log_date: o.created_date,
+}));
 
 export const MATERIALS: Material[] = ORDERS.flatMap((o) =>
   Array.from({ length: range(2, 4) }, (_, j) => ({

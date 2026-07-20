@@ -39,6 +39,7 @@ function Page() {
     wash, 
     qc: qcRecords, 
     cartons, 
+    wipLogs,
     equipment,
     updateOrder,
     advanceOrderStage,
@@ -47,7 +48,8 @@ function Page() {
     addSewingBundle,
     addWashBatch,
     addQCRecord,
-    addCarton
+    addCarton,
+    addWIPLog
   } = useAppData();
 
   const [noteText, setNoteText] = useState("");
@@ -484,7 +486,7 @@ function Page() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 text-sm">
             <div>
               <div className="text-xs text-muted-foreground uppercase tracking-wider">Customer</div>
               <div className="mt-1 font-semibold text-foreground">{order.customer_name}</div>
@@ -492,6 +494,14 @@ function Page() {
             <div>
               <div className="text-xs text-muted-foreground uppercase tracking-wider">PO Number</div>
               <div className="mt-1 font-semibold text-foreground">{order.PO_number}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wider">Style No</div>
+              <div className="mt-1 font-bold text-secondary text-xs">{order.style_no || "N/A"}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wider">Color</div>
+              <div className="mt-1 font-semibold text-foreground text-xs">{order.color || "Indigo"}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground uppercase tracking-wider">Tech Pack</div>
@@ -506,10 +516,10 @@ function Page() {
               <div className="mt-1 font-semibold text-foreground">{order.qty.toLocaleString()} pcs</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground uppercase tracking-wider">Created Date</div>
-              <div className="mt-1 font-semibold text-foreground flex items-center gap-1">
+              <div className="text-xs text-muted-foreground uppercase tracking-wider">Planned Ship</div>
+              <div className="mt-1 font-semibold text-foreground flex items-center gap-1 text-xs">
                 <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                {order.created_date}
+                {order.planned_ship_date || order.created_date}
               </div>
             </div>
           </div>
@@ -863,6 +873,85 @@ function Page() {
               </form>
             </SectionCard>
           </div>
+        </div>
+
+        {/* WIP Movement Logs Card */}
+        <div className="mt-6">
+          <SectionCard 
+            title="WIP Movement Log (Forge & Fabric Specification)"
+            action={
+              canEdit && (
+                <button
+                  onClick={() => {
+                    setWipStageId(order.current_stage);
+                    setWipQtyIn(order.qty);
+                    setWipQtyOut(0);
+                    setWipRework(0);
+                    setWipReject(0);
+                    setWipOperator("");
+                    setWipBatchLot("");
+                    setWipRemarks("");
+                    setActiveModal("wip" as any);
+                  }}
+                  className="bg-secondary hover:bg-secondary/90 text-secondary-foreground text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 transition-all"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Log WIP Movement
+                </button>
+              )
+            }
+          >
+            {wipLogs.filter((w) => w.order_id === orderId).length === 0 ? (
+              <div className="text-center py-6 text-xs text-muted-foreground">
+                No WIP movement logs recorded for this order yet.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="uppercase text-muted-foreground border-b border-border">
+                    <tr>
+                      <th className="py-2 pr-3">Date</th>
+                      <th className="py-2 pr-3">Stage</th>
+                      <th className="py-2 pr-3">Type</th>
+                      <th className="py-2 pr-3">Qty IN</th>
+                      <th className="py-2 pr-3">Qty OUT</th>
+                      <th className="py-2 pr-3">Rework</th>
+                      <th className="py-2 pr-3">Reject</th>
+                      <th className="py-2 pr-3">Net WIP</th>
+                      <th className="py-2 pr-3">QC Status</th>
+                      <th className="py-2 pr-3">Operator</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    {wipLogs.filter((w) => w.order_id === orderId).map((w) => {
+                      const stg = STAGES.find(s => s.id === w.stage_id)?.name || `Stage ${w.stage_id}`;
+                      return (
+                        <tr key={w.log_id} className="hover:bg-muted/30">
+                          <td className="py-2.5 pr-3 font-mono-data">{w.log_date}</td>
+                          <td className="py-2.5 pr-3 font-semibold">{stg}</td>
+                          <td className="py-2.5 pr-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              w.movement_type === "IN" ? "bg-success/15 text-success border border-success/30" :
+                              w.movement_type === "OUT" ? "bg-secondary/15 text-secondary border border-secondary/30" :
+                              "bg-destructive/15 text-destructive border border-destructive/30"
+                            }`}>
+                              {w.movement_type}
+                            </span>
+                          </td>
+                          <td className="py-2.5 pr-3">{w.qty_in.toLocaleString()}</td>
+                          <td className="py-2.5 pr-3">{w.qty_out.toLocaleString()}</td>
+                          <td className="py-2.5 pr-3 text-amber-600 font-semibold">{w.rework_qty}</td>
+                          <td className="py-2.5 pr-3 text-destructive font-semibold">{w.reject_qty}</td>
+                          <td className="py-2.5 pr-3 font-bold text-navy">{(w.qty_in - w.qty_out).toLocaleString()}</td>
+                          <td className="py-2.5 pr-3 font-semibold">{w.qc_status}</td>
+                          <td className="py-2.5 pr-3 text-muted-foreground">{w.operator || "N/A"}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </SectionCard>
         </div>
 
         {/* Derived Order Activity Event Log */}

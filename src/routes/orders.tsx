@@ -315,6 +315,7 @@ function Page() {
                   <th className="py-2 pr-4">Order ID</th>
                   <th className="py-2 pr-4">Customer</th>
                   <th className="py-2 pr-4">PO</th>
+                  <th className="py-2 pr-4">Style No</th>
                   <th className="py-2 pr-4">Tech Pack</th>
                   <th className="py-2 pr-4">Sizes</th>
                   <th className="py-2 pr-4">Qty</th>
@@ -337,6 +338,7 @@ function Page() {
                     </td>
                     <td className="py-3 pr-4">{o.customer_name}</td>
                     <td className="py-3 pr-4 text-muted-foreground">{o.PO_number}</td>
+                    <td className="py-3 pr-4 text-xs font-semibold text-secondary">{o.style_no || "N/A"}</td>
                     <td className="py-3 pr-4 text-muted-foreground font-mono-data text-xs">{o.tech_pack_ref}</td>
                     <td className="py-3 pr-4 text-xs">{o.size_breakdown}</td>
                     <td className="py-3 pr-4">{o.qty.toLocaleString()}</td>

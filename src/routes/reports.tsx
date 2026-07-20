@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { AppShell, KpiTile, SectionCard } from "../components/AppShell";
 import { useAppData } from "../hooks/useAppData";
 import { useAuth } from "../hooks/useAuth";
@@ -8,7 +8,7 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer 
 } from "recharts";
-import { TrendingUp, Download, Calendar, Filter, FileText } from "lucide-react";
+import { TrendingUp, Download, Calendar, Filter, FileText, Upload } from "lucide-react";
 
 export const Route = createFileRoute("/reports")({
   head: () => ({
@@ -22,7 +22,8 @@ export const Route = createFileRoute("/reports")({
 function Page() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { orders, qc, cartons } = useAppData();
+  const { orders, qc, cartons, importExcelTrackerPackage, exportExcelTrackerPackage, setToast } = useAppData();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Date range state (defaulting to last 30 days)
   const defaultStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -204,6 +205,18 @@ function Page() {
     link.click();
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const result = await importExcelTrackerPackage(text);
+    setToast({
+      message: `Imported Excel Package: ${result.ordersCount} Orders, ${result.wipLogsCount} WIP Logs, ${result.cartonsCount} Delivery Records.`,
+      type: "success"
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   return (
     <AppShell>
       <div className="space-y-6">
@@ -236,6 +249,61 @@ function Page() {
             />
           </div>
         </div>
+
+        {/* Excel WIP Tracker Toolkit Card */}
+        <SectionCard 
+          title="Excel WIP Tracker Integration (Forge & Fabric Specification)"
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept=".csv,.txt,.xlsx" 
+                className="hidden" 
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-navy hover:bg-navy/90 text-white text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <Upload className="h-4 w-4" /> Import Excel/CSV WIP Tracker
+              </button>
+              <button
+                onClick={exportExcelTrackerPackage}
+                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <Download className="h-4 w-4" /> Export Full 4-Sheet Excel Package
+              </button>
+            </div>
+          }
+        >
+          <div className="p-4 bg-muted/40 rounded-xl border border-border/80 text-xs space-y-2 text-muted-foreground">
+            <p className="font-semibold text-foreground text-sm">
+              1-to-1 Parity with <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs">Forge_Fabric_WIP_Production_Tracker.xlsx</code>
+            </p>
+            <p>
+              Upload your existing offline Excel or CSV trackers to import orders, WIP logs, and delivery records into the database in one click, or export factory data back into matching Excel CSV files.
+            </p>
+            <div className="grid md:grid-cols-4 gap-3 pt-1">
+              <div className="p-2.5 bg-card rounded-lg border border-border/60">
+                <div className="font-bold text-foreground">1. Orders Sheet</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">PO, Style No, Color, Planned Ship Date, Delivered Qty &amp; Open Balance</div>
+              </div>
+              <div className="p-2.5 bg-card rounded-lg border border-border/60">
+                <div className="font-bold text-foreground">2. WIPLog Sheet</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">IN, OUT, REWORK, REJECT logs &amp; Net WIP impact per stage</div>
+              </div>
+              <div className="p-2.5 bg-card rounded-lg border border-border/60">
+                <div className="font-bold text-foreground">3. Stage Summary</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">Total IN/OUT balances and % distribution across 13 stages</div>
+              </div>
+              <div className="p-2.5 bg-card rounded-lg border border-border/60">
+                <div className="font-bold text-foreground">4. Delivery Log</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">Ship dates, Carrier/Truck, POD refs, Customer Acceptance &amp; Invoices</div>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
 
         {/* Recharts Trends */}
         <div className="grid lg:grid-cols-2 gap-4">

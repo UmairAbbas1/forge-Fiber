@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useMemo, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase, isRealSupabase } from "../lib/supabase";
 import { useAuth } from "./useAuth";
@@ -10,6 +10,8 @@ import {
   WASH as seedWash,
   QC as seedQC,
   CARTONS as seedCartons,
+  MOCK_WIP_LOGS as seedWipLogs,
+  STAGES,
   type Order,
   type Material,
   type CuttingRecord,
@@ -17,6 +19,9 @@ import {
   type WashBatch,
   type QCRecord,
   type Carton,
+  type WIPLog,
+  type WIPMovementType,
+  type WIPQCStatus,
 } from "../lib/mockData";
 
 export interface Customer {
@@ -57,6 +62,7 @@ interface AppDataContextType {
   wash: WashBatch[];
   qc: QCRecord[];
   cartons: Carton[];
+  wipLogs: WIPLog[];
   customers: Customer[];
   equipment: Equipment[];
   checkpoints: Checkpoint[];
@@ -74,6 +80,9 @@ interface AppDataContextType {
   addQCRecord: (record: QCRecord) => void;
   addCarton: (carton: Carton) => void;
   updateCartonDispatch: (cartonId: string, fields: Partial<Carton>) => void;
+  addWIPLog: (log: Omit<WIPLog, "log_id" | "log_date">) => void;
+  importExcelTrackerPackage: (fileText: string) => Promise<{ ordersCount: number; wipLogsCount: number; cartonsCount: number }>;
+  exportExcelTrackerPackage: () => void;
   addCustomer: (name: string, contact: string) => void;
   updateCustomer: (customerId: string, fields: Partial<Customer>) => void;
   addEquipment: (name: string, type: string) => void;
@@ -99,6 +108,7 @@ const LOCAL_STORAGE_KEYS = {
   wash: "forge_flow_wash",
   qc: "forge_flow_qc",
   cartons: "forge_flow_cartons",
+  wipLogs: "forge_flow_wip_logs",
   customers: "forge_flow_customers",
   equipment: "forge_flow_equipment",
   checkpoints: "forge_flow_checkpoints",
@@ -149,6 +159,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [localWash, setLocalWash] = useState<WashBatch[]>([]);
   const [localQc, setLocalQc] = useState<QCRecord[]>([]);
   const [localCartons, setLocalCartons] = useState<Carton[]>([]);
+  const [localWipLogs, setLocalWipLogs] = useState<WIPLog[]>([]);
 
   // Config tables state
   const [localCustomers, setLocalCustomers] = useState<Customer[]>([]);
@@ -195,6 +206,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setLocalWash(loadData(LOCAL_STORAGE_KEYS.wash, seedWash as WashBatch[]));
     setLocalQc(loadData(LOCAL_STORAGE_KEYS.qc, seedQC as QCRecord[]));
     setLocalCartons(loadData(LOCAL_STORAGE_KEYS.cartons, seedCartons as Carton[]));
+    setLocalWipLogs(loadData(LOCAL_STORAGE_KEYS.wipLogs, seedWipLogs as WIPLog[]));
 
     setLocalCustomers(loadData(LOCAL_STORAGE_KEYS.customers, SEED_CUSTOMERS));
     setLocalEquipment(loadData(LOCAL_STORAGE_KEYS.equipment, SEED_EQUIPMENT));
@@ -297,6 +309,18 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     retry: 1,
   });
 
+  const { data: dbWipLogs = [], isLoading: isLoadingWipLogs } = useQuery<WIPLog[]>({
+    queryKey: ["wip_logs", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("wip_logs").select("*");
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: isRealSupabase && !!user,
+    staleTime: 60_000,
+    retry: 1,
+  });
+
   const { data: dbCustomers = [], isLoading: isLoadingCustomers } = useQuery<Customer[]>({
     queryKey: ["customers", user?.id],
     queryFn: async () => {
@@ -329,8 +353,81 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const wash = isRealSupabase && dbWash.length > 0 ? dbWash : localWash;
   const qc = isRealSupabase && dbQc.length > 0 ? dbQc : localQc;
   const cartons = isRealSupabase && dbCartons.length > 0 ? dbCartons : localCartons;
+  const wipLogs = isRealSupabase && dbWipLogs.length > 0 ? dbWipLogs : localWipLogs;
   const customers = isRealSupabase && dbCustomers.length > 0 ? dbCustomers : localCustomers;
   const notifications = isRealSupabase && dbNotifications.length > 0 ? dbNotifications : localNotifications;
+
+  // Strict Customer Scoping Security Logic
+  const scopedOrders = useMemo(() => {
+    if (user?.role === "customer") {
+      const custName = user.customer_name?.trim().toLowerCase();
+      if (!custName) return [];
+      return orders.filter(
+        (o) => o.customer_name?.trim().toLowerCase() === custName
+      );
+    }
+    return orders;
+  }, [user, orders]);
+
+  const scopedOrderIds = useMemo(() => {
+    return new Set(scopedOrders.map((o) => o.order_id));
+  }, [scopedOrders]);
+
+  const scopedMaterials = useMemo(() => {
+    if (user?.role === "customer") {
+      return materials.filter((m) => scopedOrderIds.has(m.order_id));
+    }
+    return materials;
+  }, [user, materials, scopedOrderIds]);
+
+  const scopedCutting = useMemo(() => {
+    if (user?.role === "customer") {
+      return cutting.filter((c) => scopedOrderIds.has(c.order_id));
+    }
+    return cutting;
+  }, [user, cutting, scopedOrderIds]);
+
+  const scopedSewing = useMemo(() => {
+    if (user?.role === "customer") {
+      return sewing.filter((s) => scopedOrderIds.has(s.order_id));
+    }
+    return sewing;
+  }, [user, sewing, scopedOrderIds]);
+
+  const scopedWash = useMemo(() => {
+    if (user?.role === "customer") {
+      return wash.filter((w) => scopedOrderIds.has(w.order_id));
+    }
+    return wash;
+  }, [user, wash, scopedOrderIds]);
+
+  const scopedQc = useMemo(() => {
+    if (user?.role === "customer") {
+      return qc.filter((q) => scopedOrderIds.has(q.order_id));
+    }
+    return qc;
+  }, [user, qc, scopedOrderIds]);
+
+  const scopedCartons = useMemo(() => {
+    if (user?.role === "customer") {
+      return cartons.filter((c) => scopedOrderIds.has(c.order_id));
+    }
+    return cartons;
+  }, [user, cartons, scopedOrderIds]);
+
+  const scopedWipLogs = useMemo(() => {
+    if (user?.role === "customer") {
+      return wipLogs.filter((w) => scopedOrderIds.has(w.order_id));
+    }
+    return wipLogs;
+  }, [user, wipLogs, scopedOrderIds]);
+
+  const scopedNotifications = useMemo(() => {
+    if (user?.role === "customer") {
+      return notifications.filter((n) => !n.order_id || scopedOrderIds.has(n.order_id));
+    }
+    return notifications;
+  }, [user, notifications, scopedOrderIds]);
 
   // Equipment & Checkpoints managed locally for ease of preview in both modes
   const equipment = localEquipment;
@@ -350,6 +447,14 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         current_stage: order.current_stage,
         qty: order.qty,
         notes: order.notes,
+        style_no: order.style_no,
+        style_description: order.style_description,
+        color: order.color,
+        planned_ship_date: order.planned_ship_date,
+        material_status: order.material_status,
+        delivered_qty: order.delivered_qty,
+        open_balance: order.open_balance,
+        delivery_status: order.delivery_status,
       };
       const { error } = await supabase.from("orders").insert(dbOrder);
       if (error) throw error;
@@ -817,59 +922,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     };
   }, [user, queryClient]);
 
-  // Scoped views for CUSTOMERS
-  const scopedOrders = !isRealSupabase && user?.role === "customer" && user?.customer_name
-    ? orders.filter((o) => o.customer_name === user.customer_name)
-    : orders;
 
-  const scopedMaterials = !isRealSupabase && user?.role === "customer" && user?.customer_name
-    ? materials.filter((m) => {
-        const order = orders.find((o) => o.order_id === m.order_id);
-        return order?.customer_name === user.customer_name;
-      })
-    : materials;
-
-  const scopedCutting = !isRealSupabase && user?.role === "customer" && user?.customer_name
-    ? cutting.filter((c) => {
-        const order = orders.find((o) => o.order_id === c.order_id);
-        return order?.customer_name === user.customer_name;
-      })
-    : cutting;
-
-  const scopedSewing = !isRealSupabase && user?.role === "customer" && user?.customer_name
-    ? sewing.filter((s) => {
-        const order = orders.find((o) => o.order_id === s.order_id);
-        return order?.customer_name === user.customer_name;
-      })
-    : sewing;
-
-  const scopedWash = !isRealSupabase && user?.role === "customer" && user?.customer_name
-    ? wash.filter((w) => {
-        const order = orders.find((o) => o.order_id === w.order_id);
-        return order?.customer_name === user.customer_name;
-      })
-    : wash;
-
-  const scopedQc = !isRealSupabase && user?.role === "customer" && user?.customer_name
-    ? qc.filter((q) => {
-        const order = orders.find((o) => o.order_id === q.order_id);
-        return order?.customer_name === user.customer_name;
-      })
-    : qc;
-
-  const scopedCartons = !isRealSupabase && user?.role === "customer" && user?.customer_name
-    ? cartons.filter((c) => {
-        const order = orders.find((o) => o.order_id === c.order_id);
-        return order?.customer_name === user.customer_name;
-      })
-    : cartons;
-
-  const scopedNotifications = !isRealSupabase && user?.role === "customer" && user?.customer_name
-    ? notifications.filter((n) => {
-        const order = orders.find((o) => o.order_id === n.order_id);
-        return order?.customer_name === user.customer_name;
-      })
-    : notifications;
 
   // Order Mutations
   const addOrder = (order: Omit<Order, "created_date">) => {
@@ -1028,6 +1081,270 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // WIP Logs Mutations
+  const addWIPLogMutation = useMutation({
+    mutationFn: async (log: Omit<WIPLog, "log_id" | "log_date">) => {
+      const newLog: WIPLog = {
+        ...log,
+        log_id: `LOG-${Date.now().toString().slice(-6)}`,
+        log_date: new Date().toISOString().slice(0, 10),
+      };
+      if (isRealSupabase) {
+        const { error } = await supabase.from("wip_logs").insert(newLog);
+        if (error) throw error;
+      }
+      return newLog;
+    },
+    onSuccess: (newLog) => {
+      if (isRealSupabase) {
+        queryClient.invalidateQueries({ queryKey: ["wip_logs"] });
+      } else {
+        const updated = [newLog, ...localWipLogs];
+        setLocalWipLogs(updated);
+        saveToStorage(LOCAL_STORAGE_KEYS.wipLogs, updated);
+      }
+      setToast({ message: `WIP Movement ${newLog.movement_type} recorded successfully!`, type: "success" });
+    },
+    onError: (err: any) => {
+      setToast({ message: `Failed to record WIP movement: ${err.message || "Unknown error"}`, type: "error" });
+    },
+  });
+
+  const addWIPLog = (log: Omit<WIPLog, "log_id" | "log_date">) => {
+    addWIPLogMutation.mutate(log);
+  };
+
+  // Excel / CSV Importer Matching Forge_Fabric_WIP_Production_Tracker.xlsx
+  const importExcelTrackerPackage = async (fileText: string) => {
+    let ordersCount = 0;
+    let wipLogsCount = 0;
+    let cartonsCount = 0;
+
+    const lines = fileText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+    if (lines.length === 0) return { ordersCount, wipLogsCount, cartonsCount };
+
+    const parseCSVLine = (line: string): string[] => {
+      const result: string[] = [];
+      let current = "";
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if ((char === ',' || char === '\t') && !inQuotes) {
+          result.push(current.trim());
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    };
+
+    const header = parseCSVLine(lines[0]);
+    const isOrdersSheet = header.some(h => h.toLowerCase().includes("order id") || h.toLowerCase().includes("po number"));
+    const isWIPSheet = header.some(h => h.toLowerCase().includes("wip") || h.toLowerCase().includes("movement type"));
+    const isDeliverySheet = header.some(h => h.toLowerCase().includes("delivery date") || h.toLowerCase().includes("carrier"));
+
+    for (let i = 1; i < lines.length; i++) {
+      const row = parseCSVLine(lines[i]);
+      if (row.length === 0 || !row[0]) continue;
+
+      if (isOrdersSheet) {
+        const order_id = row[0] || `FF-${Date.now().toString().slice(-4)}`;
+        const customer_name = row[1] || "Levi Strauss & Co.";
+        const PO_number = row[2] || `PO-${Math.floor(10000 + Math.random() * 90000)}`;
+        const style_no = row[3] || "STL-101";
+        const style_description = row[4] || "Denim Garment";
+        const color = row[5] || "Indigo";
+        const qty = parseInt(row[6], 10) || 1000;
+        const planned_ship_date = row[8] || new Date().toISOString().slice(0, 10);
+        const notes = row[17] || "Imported from Excel WIP Tracker";
+
+        addOrder({
+          order_id,
+          customer_name,
+          PO_number,
+          tech_pack_ref: `TP-${Math.floor(1000 + Math.random() * 9000)}`,
+          size_breakdown: "28-38",
+          status: "In Production",
+          current_stage: 1,
+          qty,
+          style_no,
+          style_description,
+          color,
+          planned_ship_date,
+          material_status: "Pending",
+          delivered_qty: 0,
+          open_balance: qty,
+          delivery_status: "Open",
+          notes,
+        });
+        ordersCount++;
+      } else if (isWIPSheet) {
+        const order_id = row[2] || row[0];
+        const stage_name = row[5] || "Sewing Production";
+        const stage_id = STAGES.find(s => s.name.toLowerCase() === stage_name.toLowerCase())?.id || 7;
+        const movement_type = (["IN", "OUT", "REWORK", "REJECT", "HOLD", "ADJUSTMENT"].includes(row[6]) ? row[6] : "IN") as WIPMovementType;
+        const qty_in = parseInt(row[7], 10) || 0;
+        const qty_out = parseInt(row[8], 10) || 0;
+        const rework_qty = parseInt(row[9], 10) || 0;
+        const reject_qty = parseInt(row[10], 10) || 0;
+        const qc_status = (["Not Checked", "Pass", "Rework", "Reject", "Hold", "Customer Review"].includes(row[12]) ? row[12] : "Pass") as WIPQCStatus;
+        const operator = row[13] || "Operator 1";
+        const batch_lot = row[14] || "LOT-01";
+        const remarks = row[15] || "Imported WIP log";
+
+        addWIPLog({
+          order_id,
+          stage_id,
+          movement_type,
+          qty_in,
+          qty_out,
+          rework_qty,
+          reject_qty,
+          net_wip_impact: qty_in - qty_out,
+          qc_status,
+          operator,
+          batch_lot,
+          remarks,
+          updated_by: user?.email || "system",
+        });
+        wipLogsCount++;
+      } else if (isDeliverySheet) {
+        const order_id = row[1] || row[0];
+        const packed_qty = parseInt(row[4], 10) || 100;
+        const carrier = row[6] || "DHL Express";
+        const pod_reference = row[7] || `POD-${Math.floor(10000 + Math.random() * 90000)}`;
+        const customer_acceptance = (["Pending", "Accepted", "Rejected", "Claims / Review"].includes(row[8]) ? row[8] : "Pending") as any;
+        const invoice_ref = row[9] || `INV-${Math.floor(1000 + Math.random() * 9000)}`;
+
+        addCarton({
+          carton_id: `CTN-${Date.now().toString().slice(-5)}`,
+          order_id,
+          packed_qty,
+          dispatch_status: "Shipped",
+          pod_reference,
+          ship_date: row[0] || new Date().toISOString().slice(0, 10),
+          carrier,
+          customer_acceptance,
+          invoice_ref,
+          remarks: row[10] || "Imported delivery log",
+        });
+        cartonsCount++;
+      }
+    }
+
+    return { ordersCount, wipLogsCount, cartonsCount };
+  };
+
+  const exportExcelTrackerPackage = () => {
+    const downloadCSV = (filename: string, text: string) => {
+      const blob = new Blob([text], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    // 1. Orders Sheet
+    const ordersHeaders = ["Order ID", "Customer", "PO Number", "Style No", "Style Description", "Color", "Order Qty", "Order Date", "Planned Ship Date", "Material Status", "Current Stage", "Delivered Qty", "Open Balance", "Delivery Status", "Notes"];
+    const ordersRows = orders.map(o => [
+      o.order_id,
+      `"${o.customer_name}"`,
+      o.PO_number,
+      o.style_no || "N/A",
+      `"${o.style_description || "Denim Garment"}"`,
+      o.color || "Indigo",
+      o.qty,
+      o.created_date,
+      o.planned_ship_date || o.created_date,
+      o.material_status || "Approved",
+      o.current_stage,
+      o.delivered_qty || 0,
+      o.open_balance || o.qty,
+      o.delivery_status || o.status,
+      `"${o.notes || ""}"`
+    ].join(","));
+    downloadCSV("Forge_Fabric_Orders.csv", [ordersHeaders.join(","), ...ordersRows].join("\n"));
+
+    // 2. WIPLog Sheet
+    const wipHeaders = ["Log Date", "Log ID", "Order ID", "Customer", "Style No", "Stage", "Movement Type", "Qty IN", "Qty OUT", "Rework Qty", "Reject Qty", "Net WIP Impact", "QC Status", "Operator", "Batch / Lot", "Remarks", "Updated By"];
+    const wipRows = wipLogs.map(w => {
+      const o = orders.find(ord => ord.order_id === w.order_id);
+      const stageName = STAGES.find(s => s.id === w.stage_id)?.name || `Stage ${w.stage_id}`;
+      return [
+        w.log_date,
+        w.log_id,
+        w.order_id,
+        `"${o?.customer_name || ""}"`,
+        o?.style_no || "N/A",
+        `"${stageName}"`,
+        w.movement_type,
+        w.qty_in,
+        w.qty_out,
+        w.rework_qty,
+        w.reject_qty,
+        w.net_wip_impact,
+        w.qc_status,
+        `"${w.operator || ""}"`,
+        `"${w.batch_lot || ""}"`,
+        `"${w.remarks || ""}"`,
+        w.updated_by || "system"
+      ].join(",");
+    });
+    downloadCSV("Forge_Fabric_WIPLog.csv", [wipHeaders.join(","), ...wipRows].join("\n"));
+
+    // 3. Stage Summary Sheet
+    const stageSummaryHeaders = ["Stage ID", "Stage Name", "Total Orders", "Total IN Qty", "Total OUT Qty", "Total Rework Qty", "Total Reject Qty", "Net WIP Balance"];
+    const stageSummaryRows = STAGES.map(s => {
+      const stageOrders = orders.filter(o => o.current_stage === s.id);
+      const stageLogs = wipLogs.filter(w => w.stage_id === s.id);
+      const totalIn = stageLogs.reduce((acc, l) => acc + l.qty_in, 0);
+      const totalOut = stageLogs.reduce((acc, l) => acc + l.qty_out, 0);
+      const rework = stageLogs.reduce((acc, l) => acc + l.rework_qty, 0);
+      const reject = stageLogs.reduce((acc, l) => acc + l.reject_qty, 0);
+      return [
+        s.id,
+        `"${s.name}"`,
+        stageOrders.length,
+        totalIn,
+        totalOut,
+        rework,
+        reject,
+        totalIn - totalOut
+      ].join(",");
+    });
+    downloadCSV("Forge_Fabric_Stage_Summary.csv", [stageSummaryHeaders.join(","), ...stageSummaryRows].join("\n"));
+
+    // 4. Delivery Log Sheet
+    const deliveryHeaders = ["Delivery Date", "Order ID", "Customer", "Style No", "Delivered Qty", "Cartons Count", "Carrier / Truck", "POD / Tracking", "Customer Acceptance", "Invoice / Ref", "Remarks"];
+    const deliveryRows = cartons.filter(c => c.dispatch_status === "Shipped").map(c => {
+      const o = orders.find(ord => ord.order_id === c.order_id);
+      return [
+        c.ship_date || new Date().toISOString().slice(0, 10),
+        c.order_id,
+        `"${o?.customer_name || ""}"`,
+        o?.style_no || "N/A",
+        c.packed_qty,
+        1,
+        `"${c.carrier || "Standard Carrier"}"`,
+        c.pod_reference || "N/A",
+        c.customer_acceptance || "Accepted",
+        c.invoice_ref || "N/A",
+        `"${c.remarks || ""}"`
+      ].join(",");
+    });
+    downloadCSV("Forge_Fabric_Delivery_Log.csv", [deliveryHeaders.join(","), ...deliveryRows].join("\n"));
+
+    setToast({ message: "Exported full 4-sheet WIP Excel package successfully!", type: "success" });
+  };
+
   // Customer Config Mutations
   const addCustomer = (name: string, contact: string) => {
     const newCustomer: Customer = {
@@ -1146,6 +1463,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         wash: scopedWash,
         qc: scopedQc,
         cartons: scopedCartons,
+        wipLogs: scopedWipLogs,
         customers,
         equipment,
         checkpoints,
@@ -1163,6 +1481,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         addQCRecord,
         addCarton,
         updateCartonDispatch,
+        addWIPLog,
+        importExcelTrackerPackage,
+        exportExcelTrackerPackage,
         addCustomer,
         updateCustomer,
         addEquipment,
