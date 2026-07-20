@@ -354,7 +354,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const qc = isRealSupabase && dbQc.length > 0 ? dbQc : localQc;
   const cartons = isRealSupabase && dbCartons.length > 0 ? dbCartons : localCartons;
   const wipLogs = isRealSupabase && dbWipLogs.length > 0 ? dbWipLogs : localWipLogs;
-  const customers = isRealSupabase && dbCustomers.length > 0 ? dbCustomers : localCustomers;
+  
+  // Merge dbCustomers and localCustomers to ensure locally added brands appear even if DB insert fails (e.g. due to RLS)
+  const customers = isRealSupabase 
+    ? [...dbCustomers, ...localCustomers.filter(lc => !dbCustomers.some(dc => dc.name.toLowerCase() === lc.name.toLowerCase()))]
+    : localCustomers;
+
   const notifications = isRealSupabase && dbNotifications.length > 0 ? dbNotifications : localNotifications;
 
   // Strict Customer Scoping Security Logic
@@ -1352,12 +1357,14 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       name,
       contact,
     };
+    
+    // Always update local storage as a fallback, especially useful if Supabase RLS blocks inserts
+    const updated = [...localCustomers, newCustomer];
+    setLocalCustomers(updated);
+    saveToStorage(LOCAL_STORAGE_KEYS.customers, updated);
+
     if (isRealSupabase) {
       addCustomerMutation.mutate(newCustomer);
-    } else {
-      const updated = [...localCustomers, newCustomer];
-      setLocalCustomers(updated);
-      saveToStorage(LOCAL_STORAGE_KEYS.customers, updated);
     }
   };
 
