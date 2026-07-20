@@ -50,13 +50,13 @@ function LandingPage() {
       {/* TopNavBar */}
       <nav
         className={`fixed top-0 w-full z-50 bg-white/95 border-b border-border transition-all duration-300 ${
-          scrolled ? "h-16 shadow-sm" : "h-20"
+          scrolled ? "h-20 shadow-sm" : "h-24"
         }`}
       >
         <div className="flex justify-between items-center px-6 md:px-12 h-full w-full max-w-7xl mx-auto">
-          <div className="flex items-center gap-2.5">
-            <img src="/favicon.png" alt="Forge & Fabric Logo" className="h-8 w-8 rounded-lg object-contain" />
-            <span className="font-display text-xl md:text-2xl font-bold text-primary tracking-tight">
+          <div className="flex items-center gap-3.5">
+            <img src="/favicon.png" alt="Forge & Fabric Logo" className="h-12 w-12 md:h-14 md:w-14 rounded-xl object-contain p-1 border border-slate-200 bg-white shadow-sm" />
+            <span className="font-display text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
               Forge &amp; Fabric
             </span>
           </div>

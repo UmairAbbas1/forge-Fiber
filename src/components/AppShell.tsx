@@ -236,15 +236,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         ) : (
           <div className="px-4 py-4 border-b border-sidebar-border flex items-center justify-between">
-            <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="flex items-center gap-3 overflow-hidden">
               <img 
                 src="/favicon.png" 
-                alt="Logo" 
-                className="h-9 w-9 rounded-lg object-contain shrink-0" 
+                alt="Forge & Fabric Logo" 
+                className="h-10 w-10 md:h-11 md:w-11 rounded-xl object-contain p-0.5 bg-white shadow-sm border border-white/20 shrink-0" 
               />
               <div className="leading-tight transition-all duration-300">
-                <div className="font-display font-bold text-sm tracking-wide">FORGE &amp; FABRIC</div>
-                <div className="text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/60">
+                <div className="font-display font-bold text-lg md:text-xl tracking-tight text-white">FORGE &amp; FABRIC</div>
+                <div className="text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/70 font-semibold">
                   Built to craft
                 </div>
               </div>
