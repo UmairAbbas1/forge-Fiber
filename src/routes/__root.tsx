@@ -98,9 +98,9 @@ function GlobalLoadingScreen({ error }: { error?: string | null }) {
         <img 
           src="/favicon.png" 
           alt="Logo" 
-          className="h-10 w-10 rounded-lg object-cover select-none" 
+          className="h-20 w-20 rounded-lg object-cover select-none" 
         />
-        <span className="font-display font-bold text-lg tracking-wider text-primary">
+        <span className="font-display font-bold text-3xl tracking-wider text-primary">
           Forge &amp; Fabric
         </span>
       </div>
