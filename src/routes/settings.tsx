@@ -30,7 +30,8 @@ function SettingsPage() {
     addCustomer, 
     addEquipment, 
     toggleEquipmentStatus, 
-    updateCheckpoint 
+    updateCheckpoint,
+    deleteCustomerCascade 
   } = useAppData();
 
   const [activeTab, setActiveTab] = useState<"users" | "customers" | "equipment" | "checkpoints">("users");
@@ -94,6 +95,35 @@ function SettingsPage() {
       </div>
     );
   }
+
+  const handleRemoveProfile = async (profile: Profile) => {
+    if (!window.confirm(`Are you sure you want to completely remove ${profile.email}? This will delete their brand and all associated orders.`)) {
+      return;
+    }
+    setUpdatingId(profile.id);
+    setStatusMsg("");
+    try {
+      if (isRealSupabase) {
+        await supabase.from("profiles").delete().eq("id", profile.id);
+      } else {
+        const currentProfiles = getMockProfiles();
+        saveMockProfiles(currentProfiles.filter(p => p.id !== profile.id));
+      }
+
+      if (profile.customer_name) {
+        deleteCustomerCascade(profile.customer_name);
+      }
+
+      setProfiles(prev => prev.filter(p => p.id !== profile.id));
+      setIsSuccess(true);
+      setStatusMsg("User, brand, and all associated orders were removed successfully.");
+    } catch (e: any) {
+      setIsSuccess(false);
+      setStatusMsg(e.message || "Failed to remove user");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const handleRoleChange = async (userId: string, newRole: Profile["role"]) => {
     setUpdatingId(userId);
@@ -349,16 +379,24 @@ function SettingsPage() {
                             {isSelf ? (
                               <span className="text-xs text-muted-foreground font-mono-data">Immutable</span>
                             ) : (
-                              <button
-                                onClick={() => handleToggleDeactivate(p.id, isDeactivated)}
-                                className={`text-xs font-semibold inline-flex items-center gap-1 border px-2 py-1 rounded transition-colors ${
-                                  isDeactivated 
-                                    ? "bg-success/10 text-success hover:bg-success/20 border-success/30" 
-                                    : "bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/30"
-                                }`}
-                              >
-                                {isDeactivated ? "Activate" : "Deactivate"}
-                              </button>
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={() => handleToggleDeactivate(p.id, isDeactivated)}
+                                  className={`text-xs font-semibold inline-flex items-center gap-1 border px-2 py-1 rounded transition-colors ${
+                                    isDeactivated 
+                                      ? "bg-success/10 text-success hover:bg-success/20 border-success/30" 
+                                      : "bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/30"
+                                  }`}
+                                >
+                                  {isDeactivated ? "Activate" : "Deactivate"}
+                                </button>
+                                <button
+                                  onClick={() => handleRemoveProfile(p)}
+                                  className="text-xs font-semibold inline-flex items-center gap-1 border px-2 py-1 rounded transition-colors bg-red-50 text-red-600 hover:bg-red-100 border-red-200"
+                                >
+                                  Remove
+                                </button>
+                              </div>
                             )}
                           </td>
                         </tr>

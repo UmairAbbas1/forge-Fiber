@@ -69,6 +69,8 @@ interface AppDataContextType {
   notifications: Notification[];
   addOrder: (order: Omit<Order, "created_date">) => void;
   updateOrder: (orderId: string, fields: Partial<Order>) => void;
+  deleteOrder: (orderId: string) => void;
+  deleteCustomerCascade: (customerName: string) => void;
   addMaterial: (material: Material) => void;
   updateMaterialInspection: (materialId: string, status: Material["inspection_status"]) => void;
   addCuttingRecord: (record: CuttingRecord) => void;
@@ -571,6 +573,20 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     },
     onError: (error: any) => {
       setToast({ message: `Failed to update order: ${error.message}`, type: "error" });
+    },
+  });
+
+  const deleteOrderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const { error } = await supabase.from("orders").delete().eq("order_id", orderId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      setToast({ message: "Order and all related records deleted successfully!", type: "success" });
+    },
+    onError: (error: any) => {
+      setToast({ message: `Failed to delete order: ${error.message}`, type: "error" });
     },
   });
 
@@ -1587,6 +1603,117 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteOrder = (orderId: string) => {
+    if (isRealSupabase) {
+      deleteOrderMutation.mutate(orderId);
+    } else {
+      const filterByOrderId = (items: any[]) => items.filter((item: any) => item.order_id !== orderId);
+
+      const newOrders = localOrders.filter(o => o.order_id !== orderId);
+      setLocalOrders(newOrders);
+      saveToStorage(LOCAL_STORAGE_KEYS.orders, newOrders);
+
+      const newMaterials = filterByOrderId(localMaterials);
+      setLocalMaterials(newMaterials);
+      saveToStorage(LOCAL_STORAGE_KEYS.materials, newMaterials);
+
+      const newCutting = filterByOrderId(localCutting);
+      setLocalCutting(newCutting);
+      saveToStorage(LOCAL_STORAGE_KEYS.cutting, newCutting);
+
+      const newSewing = filterByOrderId(localSewing);
+      setLocalSewing(newSewing);
+      saveToStorage(LOCAL_STORAGE_KEYS.sewing, newSewing);
+
+      const newWash = filterByOrderId(localWash);
+      setLocalWash(newWash);
+      saveToStorage(LOCAL_STORAGE_KEYS.wash, newWash);
+
+      const newQc = filterByOrderId(localQc);
+      setLocalQc(newQc);
+      saveToStorage(LOCAL_STORAGE_KEYS.qc, newQc);
+
+      const newCartons = filterByOrderId(localCartons);
+      setLocalCartons(newCartons);
+      saveToStorage(LOCAL_STORAGE_KEYS.cartons, newCartons);
+
+      const newWipLogs = filterByOrderId(localWipLogs);
+      setLocalWipLogs(newWipLogs);
+      saveToStorage(LOCAL_STORAGE_KEYS.wipLogs, newWipLogs);
+
+      const newNotifications = filterByOrderId(localNotifications);
+      setLocalNotifications(newNotifications);
+      saveToStorage(LOCAL_STORAGE_KEYS.notifications, newNotifications);
+
+      setToast({ message: "Order and all related records deleted successfully!", type: "success" });
+    }
+  };
+
+  const deleteCustomerCascade = async (customerName: string) => {
+    if (isRealSupabase) {
+      const o = orders.filter(o => o.customer_name === customerName);
+      for (const order of o) {
+        await supabase.from("orders").delete().eq("order_id", order.order_id);
+      }
+      await supabase.from("customers").delete().eq("name", customerName);
+      await supabase.from("profiles").delete().eq("customer_name", customerName);
+      queryClient.invalidateQueries();
+    } else {
+      const o = localOrders.filter(o => o.customer_name === customerName);
+      const filterByCustomer = (items: any[]) => items.filter((item: any) => !o.some(ord => ord.order_id === item.order_id));
+      
+      const newOrders = localOrders.filter(o => o.customer_name !== customerName);
+      setLocalOrders(newOrders);
+      saveToStorage(LOCAL_STORAGE_KEYS.orders, newOrders);
+
+      const newMaterials = filterByCustomer(localMaterials);
+      setLocalMaterials(newMaterials);
+      saveToStorage(LOCAL_STORAGE_KEYS.materials, newMaterials);
+
+      const newCutting = filterByCustomer(localCutting);
+      setLocalCutting(newCutting);
+      saveToStorage(LOCAL_STORAGE_KEYS.cutting, newCutting);
+
+      const newSewing = filterByCustomer(localSewing);
+      setLocalSewing(newSewing);
+      saveToStorage(LOCAL_STORAGE_KEYS.sewing, newSewing);
+
+      const newWash = filterByCustomer(localWash);
+      setLocalWash(newWash);
+      saveToStorage(LOCAL_STORAGE_KEYS.wash, newWash);
+
+      const newQc = filterByCustomer(localQc);
+      setLocalQc(newQc);
+      saveToStorage(LOCAL_STORAGE_KEYS.qc, newQc);
+
+      const newCartons = filterByCustomer(localCartons);
+      setLocalCartons(newCartons);
+      saveToStorage(LOCAL_STORAGE_KEYS.cartons, newCartons);
+
+      const newWipLogs = filterByCustomer(localWipLogs);
+      setLocalWipLogs(newWipLogs);
+      saveToStorage(LOCAL_STORAGE_KEYS.wipLogs, newWipLogs);
+
+      const newNotifications = filterByCustomer(localNotifications);
+      setLocalNotifications(newNotifications);
+      saveToStorage(LOCAL_STORAGE_KEYS.notifications, newNotifications);
+
+      const newCustomers = localCustomers.filter(c => c.name !== customerName);
+      setLocalCustomers(newCustomers);
+      saveToStorage(LOCAL_STORAGE_KEYS.customers, newCustomers);
+
+      try {
+        const raw = localStorage.getItem("forge_flow_mock_profiles");
+        if (raw) {
+          const profiles = JSON.parse(raw);
+          const newProfiles = profiles.filter((p: any) => p.customer_name !== customerName);
+          localStorage.setItem("forge_flow_mock_profiles", JSON.stringify(newProfiles));
+        }
+      } catch(e) {}
+    }
+    setToast({ message: `Brand "${customerName}" and all associated data deleted successfully!`, type: "success" });
+  };
+
   const advanceOrderStage = (orderId: string, toStage: number) => {
     updateOrder(orderId, { current_stage: toStage });
     createRealtimeNotification(
@@ -1645,6 +1772,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         notifications: scopedNotifications,
         addOrder,
         updateOrder,
+        deleteOrder,
+        deleteCustomerCascade,
         addMaterial,
         updateMaterialInspection,
         addCuttingRecord,

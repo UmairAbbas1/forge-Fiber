@@ -25,7 +25,7 @@ const SIZES = ["28-38", "30-40", "S-XXL", "26-36", "XS-XL"];
 function Page() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { orders, addOrder, updateOrder, isOrderOnHold, customers, addCustomer, globalSearchQuery, setGlobalSearchQuery } = useAppData();
+  const { orders, addOrder, updateOrder, deleteOrder, deleteCustomerCascade, isOrderOnHold, customers, addCustomer, globalSearchQuery, setGlobalSearchQuery } = useAppData();
 
   const [status, setStatus] = useState<string>("All");
 
@@ -578,12 +578,31 @@ function Page() {
                 </select>
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-primary text-white hover:bg-black h-11 rounded-lg font-headline-sm text-sm font-semibold mt-6 transition-all"
-              >
-                Save Changes
-              </button>
+              <div className="flex gap-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to delete this order? It will be removed from all stages.")) {
+                      const remaining = orders.filter(o => o.customer_name === selectedOrder.customer_name && o.order_id !== selectedOrder.order_id);
+                      if (remaining.length === 0) {
+                         deleteCustomerCascade(selectedOrder.customer_name);
+                      } else {
+                         deleteOrder(selectedOrder.order_id);
+                      }
+                      setSelectedOrder(null);
+                    }
+                  }}
+                  className="flex-1 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white h-11 rounded-lg font-headline-sm text-sm font-semibold transition-all"
+                >
+                  Delete Order
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-primary text-white hover:bg-black h-11 rounded-lg font-headline-sm text-sm font-semibold transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
             </form>
           </div>
         </div>
