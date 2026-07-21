@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase, isRealSupabase, getMockProfiles, saveMockProfiles, type Profile } from "../lib/supabase";
 
 interface AuthContextType {
@@ -11,7 +12,8 @@ interface AuthContextType {
     email: string,
     password: string,
     role: Profile["role"],
-    customerName?: string
+    customerName?: string,
+    fullName?: string
   ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateUserRole: (userId: string, role: Profile["role"]) => Promise<{ error: Error | null }>;
@@ -45,6 +47,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
     return {
       ...(data as any),
       customer_name: (data as any).customers?.name || (data as any).customer_name,
+      full_name: (data as any).full_name,
     } as Profile;
   } catch {
     return null;
@@ -52,6 +55,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -86,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 email: session.user.email || "",
                 role: (session.user.user_metadata?.role as Profile["role"]) || "customer",
                 customer_name: session.user.user_metadata?.customer_name,
+                full_name: session.user.user_metadata?.full_name,
                 created_at: session.user.created_at,
               }
             );
@@ -189,7 +194,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string,
     role: Profile["role"],
-    customerName?: string
+    customerName?: string,
+    fullName?: string
   ) => {
     if (isRealSupabase) {
       let customerId: string | undefined = undefined;
@@ -212,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             role,
             customer_name: customerName,
             customer_id: customerId,
+            full_name: fullName,
           },
         },
       });
@@ -224,6 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role,
           customer_name: customerName,
           customer_id: customerId,
+          full_name: fullName,
         });
       }
       return { error: null };
@@ -238,6 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         role,
         customer_name: customerName,
+        full_name: fullName,
         created_at: new Date().toISOString(),
       };
 
@@ -257,8 +266,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await supabase.auth.signOut();
     } else {
       localStorage.removeItem("forge_flow_session");
-      setUser(null);
     }
+    setUser(null);
+    queryClient.clear();
   };
 
   // Update user role (Settings User Management Panel)

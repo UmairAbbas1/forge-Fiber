@@ -11,6 +11,7 @@ export interface Profile {
   email: string;
   role: "admin" | "merchandiser" | "production" | "qc" | "customer";
   customer_name?: string; // used for customer-scoped views
+  full_name?: string;
   created_at: string;
   deactivated?: boolean;
 }

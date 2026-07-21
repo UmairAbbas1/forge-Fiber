@@ -48,7 +48,7 @@ export interface Notification {
   id: string;
   message: string;
   order_id: string;
-  type: "hold" | "reject" | "slow_stage" | "overdue" | "qc_checkpoint_pending";
+  type: "hold" | "reject" | "slow_stage" | "overdue" | "qc_checkpoint_pending" | "stage_advance" | "rework" | "status_update";
   read: boolean;
   stage_id: number;
   created_at: string;
@@ -212,6 +212,32 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setLocalEquipment(loadData(LOCAL_STORAGE_KEYS.equipment, SEED_EQUIPMENT));
     setLocalCheckpoints(loadData(LOCAL_STORAGE_KEYS.checkpoints, SEED_CHECKPOINTS));
     setLocalNotifications(loadData(LOCAL_STORAGE_KEYS.notifications, []));
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (!e.newValue) return;
+      try {
+        const parsed = JSON.parse(e.newValue);
+        switch (e.key) {
+          case LOCAL_STORAGE_KEYS.orders: setLocalOrders(parsed); break;
+          case LOCAL_STORAGE_KEYS.materials: setLocalMaterials(parsed); break;
+          case LOCAL_STORAGE_KEYS.cutting: setLocalCutting(parsed); break;
+          case LOCAL_STORAGE_KEYS.sewing: setLocalSewing(parsed); break;
+          case LOCAL_STORAGE_KEYS.wash: setLocalWash(parsed); break;
+          case LOCAL_STORAGE_KEYS.qc: setLocalQc(parsed); break;
+          case LOCAL_STORAGE_KEYS.cartons: setLocalCartons(parsed); break;
+          case LOCAL_STORAGE_KEYS.wipLogs: setLocalWipLogs(parsed); break;
+          case LOCAL_STORAGE_KEYS.customers: setLocalCustomers(parsed); break;
+          case LOCAL_STORAGE_KEYS.equipment: setLocalEquipment(parsed); break;
+          case LOCAL_STORAGE_KEYS.checkpoints: setLocalCheckpoints(parsed); break;
+          case LOCAL_STORAGE_KEYS.notifications: setLocalNotifications(parsed); break;
+        }
+      } catch (err) {
+        console.error("Error parsing storage event", err);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const saveToStorage = (key: string, data: any) => {
@@ -333,15 +359,22 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     retry: 1,
   });
 
-  const { data: dbNotifications = [], isLoading: isLoadingNotifications } = useQuery<Notification[]>({
+  const { data: dbNotifications = [], isLoading: isLoadingNotifications, refetch: refetchNotifications } = useQuery<Notification[]>({
     queryKey: ["notifications", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("notifications").select("*");
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) {
+        console.error("Notifications fetch error:", error);
+        throw error;
+      }
       return data || [];
     },
     enabled: isRealSupabase && !!user,
-    staleTime: 30_000,
+    staleTime: 0,   // Always fetch fresh — notifications must be real-time
+    refetchInterval: 10_000, // Poll every 10s as a safety net
     retry: 1,
   });
 
@@ -360,7 +393,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     ? [...dbCustomers, ...localCustomers.filter(lc => !dbCustomers.some(dc => dc.name.toLowerCase() === lc.name.toLowerCase()))]
     : localCustomers;
 
-  const notifications = isRealSupabase && dbNotifications.length > 0 ? dbNotifications : localNotifications;
+  // Always use DB notifications in Supabase mode (even if empty — customer may genuinely have none yet)
+  const notifications = isRealSupabase ? dbNotifications : localNotifications;
 
   // Strict Customer Scoping Security Logic
   const scopedOrders = useMemo(() => {
@@ -529,6 +563,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+      // Invalidate notifications so the DB trigger's new notification becomes visible immediately
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      }, 500);
       setToast({ message: "Order updated successfully!", type: "success" });
     },
     onError: (error: any) => {
@@ -560,6 +598,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials"] });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      }, 500);
       setToast({ message: "Material inspection status updated!", type: "success" });
     },
     onError: (error: any) => {
@@ -739,10 +780,18 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const addNotificationMutation = useMutation({
     mutationFn: async (notif: Notification) => {
-      const { error } = await supabase.from("notifications").insert(notif);
+      const dbNotif: any = { ...notif };
+      delete dbNotif.id; // Let Postgres generate the UUID
+      const { error } = await supabase
+        .from("notifications")
+        .upsert(dbNotif, { onConflict: "type, order_id" });
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+    onError: (error: any) => {
+      console.error("Failed to insert notification:", error);
+      setToast({ message: `Notification Error: ${error.message || "Unique constraint violation"}`, type: "error" });
+    },
   });
 
   const markNotificationReadMutation = useMutation({
@@ -755,6 +804,27 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setToast({ message: `Failed to read notification: ${error.message}`, type: "error" });
     },
   });
+
+  const createRealtimeNotification = (message: string, orderId: string, type: Notification["type"], stageId: number) => {
+    const notif: Notification = {
+      id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      message,
+      order_id: orderId,
+      type,
+      read: false,
+      stage_id: stageId,
+      created_at: new Date().toISOString(),
+    };
+    if (isRealSupabase) {
+      addNotificationMutation.mutate(notif);
+    } else {
+      setLocalNotifications((prev) => {
+        const merged = [notif, ...prev];
+        saveToStorage(LOCAL_STORAGE_KEYS.notifications, merged);
+        return merged;
+      });
+    }
+  };
 
   /**
    * Notification Audit Engine
@@ -803,6 +873,21 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           type: "hold",
           read: false,
           stage_id: 2,
+          created_at: new Date().toISOString(),
+        });
+      }
+    });
+
+    // 1b. Order Hold
+    orders.forEach((o) => {
+      if (o.status === "On Hold" && !hasAlert("hold", o.order_id)) {
+        auditList.push({
+          id: makeId(),
+          message: `[HOLD] Order ${o.order_id} has been put on hold.`,
+          order_id: o.order_id,
+          type: "hold",
+          read: false,
+          stage_id: o.current_stage,
           created_at: new Date().toISOString(),
         });
       }
@@ -1008,6 +1093,21 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setLocalOrders(updated);
       saveToStorage(LOCAL_STORAGE_KEYS.orders, updated);
     }
+    
+    if (fields.status) {
+      const order = orders.find(o => o.order_id === orderId);
+      const stage = fields.current_stage || order?.current_stage || 1;
+      
+      if (fields.status === "On Hold") {
+        createRealtimeNotification(`[HOLD] Order ${orderId} has been put on hold.`, orderId, "hold", stage);
+      } else if (fields.status === "In Production") {
+        createRealtimeNotification(`[UPDATE] Order ${orderId} is now In Production.`, orderId, "status_update", stage);
+      } else if (fields.status === "Shipped") {
+        createRealtimeNotification(`[SHIPPED] Order ${orderId} has been Shipped!`, orderId, "status_update", 13);
+      } else if (fields.status === "Open") {
+        createRealtimeNotification(`[UPDATE] Order ${orderId} status changed to Open.`, orderId, "status_update", stage);
+      }
+    }
   };
 
   // Material Mutations
@@ -1104,6 +1204,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       const updated = [record, ...localQc];
       setLocalQc(updated);
       saveToStorage(LOCAL_STORAGE_KEYS.qc, updated);
+    }
+    
+    if (record.result === "Reject") {
+      createRealtimeNotification(`[REJECT] QC checkpoint "${record.stage_checkpoint}" failed for Order ${record.order_id}.`, record.order_id, "reject", 11);
+    } else if (record.result === "Rework") {
+      createRealtimeNotification(`[REWORK] Order ${record.order_id} requires rework at "${record.stage_checkpoint}".`, record.order_id, "rework", 11);
     }
   };
 
@@ -1483,6 +1589,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const advanceOrderStage = (orderId: string, toStage: number) => {
     updateOrder(orderId, { current_stage: toStage });
+    createRealtimeNotification(
+      `[STAGE] Order ${orderId} has advanced to Stage ${toStage}.`,
+      orderId,
+      "stage_advance",
+      toStage
+    );
     setToast({
       message: `Order ${orderId} successfully advanced to Stage ${toStage}!`,
       type: "success"

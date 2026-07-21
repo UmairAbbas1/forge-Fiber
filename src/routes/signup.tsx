@@ -24,6 +24,7 @@ function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"admin" | "merchandiser" | "production" | "qc" | "customer">("customer");
+  const [fullName, setFullName] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -35,8 +36,8 @@ function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      setErrorMsg("Please enter email and password.");
+    if (!fullName.trim() || !email || !password) {
+      setErrorMsg("Please enter your name, email and password.");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
@@ -62,7 +63,7 @@ function SignupPage() {
 
     try {
       const selectedCustomer = role === "customer" ? customerName : undefined;
-      const { error } = await signUp(email, password, role, selectedCustomer);
+      const { error } = await signUp(email, password, role, selectedCustomer, fullName.trim());
       if (error) {
         setErrorMsg(error.message);
       } else {
@@ -114,6 +115,23 @@ function SignupPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground uppercase tracking-wider block">
+                Full Name
+              </label>
+              <div className="relative">
+                <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="e.g. Faiz Ijaz"
+                  className="w-full pl-9 pr-3 h-10 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                  disabled={submitting}
+                />
+              </div>
+            </div>
+
             <div className="space-y-1">
               <label className="text-xs font-semibold text-foreground uppercase tracking-wider block">
                 Email Address

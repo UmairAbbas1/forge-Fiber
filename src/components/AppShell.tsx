@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Search,
   Bell,
+  BellRing,
   Shield,
   LogOut,
   User,
@@ -18,9 +19,10 @@ import {
   MailCheck,
   Menu,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  X
 } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useAppData } from "../hooks/useAppData";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "./ui/tooltip";
@@ -45,6 +47,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [now, setNow] = useState<string>("");
   const [showNotifs, setShowNotifs] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  // Popup notification state
+  const [popupNotif, setPopupNotif] = useState<{ message: string; orderId: string; id: string; type: string } | null>(null);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const prevNotifIdsRef = useRef<Set<string>>(new Set());
+  const popupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const dismissPopup = useCallback(() => {
+    setPopupVisible(false);
+    setTimeout(() => setPopupNotif(null), 400);
+  }, []);
+
 
   // Responsive Sidebar States
   const [collapsed, setCollapsed] = useState<boolean>(() => {
@@ -98,6 +112,33 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
+  // Detect incoming new notifications and show a popup
+  useEffect(() => {
+    if (!notifications || notifications.length === 0) return;
+
+    // On first load, seed the known IDs without showing popups
+    if (prevNotifIdsRef.current.size === 0) {
+      notifications.forEach((n) => prevNotifIdsRef.current.add(n.id));
+      return;
+    }
+
+    // Find genuinely new notifications not seen before
+    const newOnes = notifications.filter((n) => !prevNotifIdsRef.current.has(n.id));
+    if (newOnes.length > 0) {
+      // Show the most recent new notification as a popup
+      const latest = newOnes[0];
+      setPopupNotif({ message: latest.message, orderId: latest.order_id, id: latest.id, type: latest.type });
+      setPopupVisible(true);
+
+      // Auto-dismiss after 6 seconds
+      if (popupTimerRef.current) clearTimeout(popupTimerRef.current);
+      popupTimerRef.current = setTimeout(() => dismissPopup(), 6000);
+
+      // Update known IDs
+      newOnes.forEach((n) => prevNotifIdsRef.current.add(n.id));
+    }
+  }, [notifications, dismissPopup]);
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -148,10 +189,38 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Role scoped notifications filtering
   const filteredNotifications = notifications.filter((n) => {
     if (user.role === "admin" || user.role === "qc") return true;
-    if (user.role === "merchandiser") return ["hold", "slow_stage"].includes(n.type);
-    if (user.role === "production") return ["hold", "reject", "overdue"].includes(n.type);
+    if (user.role === "merchandiser") return true; // Merchandisers need visibility on all issues
+    if (user.role === "production") return ["hold", "reject", "overdue", "rework", "status_update"].includes(n.type);
     return true; // customer already order-scoped at hook level
   });
+
+  const getInitials = (name?: string, email?: string) => {
+    if (name) {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return name.slice(0, 2).toUpperCase();
+    }
+    if (email) {
+      const localPart = email.split('@')[0];
+      if (localPart.includes('.')) {
+        const parts = localPart.split('.');
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      if (localPart.toLowerCase().startsWith('faizijaz')) {
+        return 'FI';
+      }
+      return localPart.slice(0, 2).toUpperCase();
+    }
+    return "U";
+  };
+
+  const formatNotifTime = (isoString: string) => {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString;
+    return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+  };
 
   const unreadCount = filteredNotifications.filter((n) => !n.read).length;
 
@@ -404,7 +473,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                                 <p className="text-xs text-foreground leading-snug">{n.message}</p>
                                 <div className="flex justify-between items-center text-[10px] text-muted-foreground font-mono-data">
                                   <span>Order: {n.order_id}</span>
-                                  <span>{new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  <span>{formatNotifTime(n.created_at)}</span>
                                 </div>
                               </div>
                             </button>
@@ -418,10 +487,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               {/* User Profile */}
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center text-primary-variant font-bold text-xs uppercase">
-                  {user.email.slice(0, 2)}
+                  {getInitials(user.full_name, user.email)}
                 </div>
                 <div className="hidden lg:block text-left leading-none">
-                  <div className="text-xs font-bold text-foreground font-display max-w-[120px] truncate">{user.email}</div>
+                  <div className="text-xs font-bold text-foreground font-display max-w-[120px] truncate">{user.full_name || user.email}</div>
                   <span className={`mt-0.5 inline-block text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded border ${roleColors[user.role]}`}>
                     {user.role}
                   </span>
@@ -453,6 +522,58 @@ export function AppShell({ children }: { children: ReactNode }) {
               : "bg-success"
           }`} />
           <span>{toast.message}</span>
+        </div>
+      )}
+
+      {/* Real-time Notification Popup */}
+      {popupNotif && (
+        <div
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-[min(420px,90vw)] transition-all duration-400 ${
+            popupVisible
+              ? "opacity-100 translate-y-0 scale-100"
+              : "opacity-0 translate-y-4 scale-95 pointer-events-none"
+          }`}
+          style={{ transition: "opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1)" }}
+        >
+          <div className={`rounded-2xl shadow-2xl border overflow-hidden ${
+            popupNotif.type === "hold" ? "bg-red-950 border-red-700/60" :
+            popupNotif.type === "reject" ? "bg-red-950 border-red-700/60" :
+            popupNotif.type === "status_update" ? "bg-slate-900 border-primary/40" :
+            "bg-slate-900 border-amber-600/40"
+          }`}>
+            {/* Progress bar countdown */}
+            <div className={`h-0.5 w-full ${
+              popupNotif.type === "hold" || popupNotif.type === "reject" ? "bg-red-500/30" : "bg-primary/30"
+            }`}>
+              <div
+                className={`h-full ${
+                  popupNotif.type === "hold" || popupNotif.type === "reject" ? "bg-red-400" : "bg-primary"
+                }`}
+                style={{ width: "100%", animation: "shrink-width 6s linear forwards" }}
+              />
+            </div>
+            <div className="px-4 py-3.5 flex items-start gap-3">
+              <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                popupNotif.type === "hold" || popupNotif.type === "reject"
+                  ? "bg-red-500/20 text-red-400"
+                  : "bg-primary/20 text-primary"
+              }`}>
+                <BellRing className="h-4 w-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] uppercase tracking-widest font-bold mb-0.5 text-white/50">
+                  New Notification · Order {popupNotif.orderId}
+                </div>
+                <p className="text-sm text-white leading-snug font-medium">{popupNotif.message}</p>
+              </div>
+              <button
+                onClick={dismissPopup}
+                className="shrink-0 mt-0.5 p-1 rounded-md text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
