@@ -48,9 +48,11 @@ function Page() {
   const [editStatus, setEditStatus] = useState<Order["status"]>("Open");
   const [editFormError, setEditFormError] = useState("");
 
-  // Role Guarding: redirect production role users to /materials
+  // Role Guarding: redirect unauthenticated users to /login and production role users to /materials
   useEffect(() => {
-    if (user && user.role === "production") {
+    if (!user) {
+      navigate({ to: "/login" });
+    } else if (user.role === "production") {
       navigate({ to: "/materials" });
     }
   }, [user, navigate]);

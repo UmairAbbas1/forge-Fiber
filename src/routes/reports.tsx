@@ -33,7 +33,9 @@ function Page() {
 
   // Role Guarding: restrict to admin and qc
   useEffect(() => {
-    if (user && !["admin", "qc"].includes(user.role)) {
+    if (!user) {
+      navigate({ to: "/login" });
+    } else if (!["admin", "qc"].includes(user.role)) {
       navigate({ to: "/dashboard" });
     }
   }, [user, navigate]);

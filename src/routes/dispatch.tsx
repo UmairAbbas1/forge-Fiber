@@ -34,7 +34,9 @@ function Page() {
 
   // Role Guarding: restrict to admin, production, qc, customer
   useEffect(() => {
-    if (user && !["admin", "production", "qc", "customer"].includes(user.role)) {
+    if (!user) {
+      navigate({ to: "/login" });
+    } else if (!["admin", "production", "qc", "customer"].includes(user.role)) {
       navigate({ to: "/orders" });
     }
   }, [user, navigate]);

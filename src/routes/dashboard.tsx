@@ -81,7 +81,9 @@ function Page() {
 
   // Role guard
   useEffect(() => {
-    if (user && !["admin", "qc"].includes(user.role)) {
+    if (!user) {
+      navigate({ to: "/login" });
+    } else if (!["admin", "qc"].includes(user.role)) {
       if (user.role === "customer" || user.role === "merchandiser") {
         navigate({ to: "/orders" });
       } else {
