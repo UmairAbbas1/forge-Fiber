@@ -27,9 +27,9 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         }`}
       >
         <div className="flex justify-between items-center px-6 md:px-12 h-full w-full max-w-7xl mx-auto">
-          <Link to="/" className="flex items-center gap-2.5">
-            <img src="/favicon.png" alt="Forge & Fabric Logo" className="h-8 w-8 rounded-lg object-contain" />
-            <span className="font-display text-xl md:text-2xl font-bold text-primary tracking-tight">
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/favicon.png" alt="Forge & Fabric Logo" className="h-12 w-12 md:h-14 md:w-14 rounded-lg object-contain" />
+            <span className="font-display text-2xl md:text-3xl font-bold text-primary tracking-tight">
               Forge &amp; Fabric
             </span>
           </Link>
