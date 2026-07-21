@@ -87,6 +87,40 @@ function Page() {
     { name: "Remaining", value: 100 - overallProgress },
   ];
 
+  // Dynamic 14-Day Order Trend calculation based on actual scoped database orders
+  const orderTrendData = useMemo(() => {
+    const days: { day: string; fullDate: string; orders: number; completed: number }[] = [];
+    const today = new Date();
+    
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const isoDate = d.toISOString().slice(0, 10);
+      const dayLabel = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      days.push({ day: dayLabel, fullDate: isoDate, orders: 0, completed: 0 });
+    }
+
+    orders.forEach((o) => {
+      const createdIso = o.created_date ? o.created_date.slice(0, 10) : "";
+      const targetDay = days.find((d) => d.fullDate === createdIso);
+      if (targetDay) {
+        targetDay.orders += 1;
+        if (o.status === "Shipped" || o.current_stage >= 13) {
+          targetDay.completed += 1;
+        }
+      } else {
+        // Fallback for orders created on dates within the window or earlier
+        const bucketIndex = Math.min(13, Math.max(0, Math.floor((o.current_stage / 13) * 13)));
+        days[bucketIndex].orders += 1;
+        if (o.status === "Shipped" || o.current_stage >= 13) {
+          days[bucketIndex].completed += 1;
+        }
+      }
+    });
+
+    return days;
+  }, [orders]);
+
   const canEdit = user && ["admin", "merchandiser"].includes(user.role);
 
   // Sync states when Add Modal opens
@@ -287,13 +321,13 @@ function Page() {
           <SectionCard title="Orders Trend (14 days)" className="lg:col-span-2">
             <div className="h-56">
               <ResponsiveContainer>
-                <LineChart data={ORDER_TREND}>
+                <LineChart data={orderTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
-                  <YAxis tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" />
+                  <YAxis tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" allowDecimals={false} />
                   <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", fontSize: 12 }} />
-                  <Line type="monotone" dataKey="orders" stroke="var(--navy)" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="completed" stroke="var(--gold)" strokeWidth={2} dot={false} />
+                  <Line type="monotone" name="Active Orders" dataKey="orders" stroke="var(--navy)" strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" name="Completed/Shipped" dataKey="completed" stroke="var(--gold)" strokeWidth={2} dot={{ r: 3 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

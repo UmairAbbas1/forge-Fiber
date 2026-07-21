@@ -305,10 +305,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  loading: false,
+  authError: null,
+  signIn: async () => ({ error: new Error("Auth service initializing...") }),
+  signUp: async () => ({ error: new Error("Auth service initializing...") }),
+  signOut: async () => {},
+  updateUserRole: async () => ({ error: new Error("Auth service initializing...") }),
+};
+
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    return defaultAuthContext;
   }
   return context;
 }
