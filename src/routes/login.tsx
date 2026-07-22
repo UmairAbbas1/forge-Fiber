@@ -134,7 +134,7 @@ function LoginPage() {
 
         {/* Center Logo */}
         <Link to="/" className="z-10 flex flex-col items-center justify-center transform hover:scale-105 transition-all duration-300">
-          <img src="/favicon.png" alt="Forge & Fabric Logo" className="w-80 h-80 md:w-[380px] md:h-[380px] object-contain drop-shadow-md" />
+          <img src="/favicon.png" alt="Forge & Fabric Logo" className="w-80 h-80 md:w-[380px] md:h-[380px] object-contain mix-blend-multiply" />
         </Link>
       </div>
 
