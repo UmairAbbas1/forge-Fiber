@@ -73,23 +73,26 @@ function Page() {
       }
     });
 
-    // Accumulate Shipped Cartons
+    // Accumulate Shipped Cartons & On-Time Delivery Rate
     filteredCartons.forEach((c) => {
       if (c.dispatch_status === "Shipped" && c.ship_date && dataMap[c.ship_date]) {
         dataMap[c.ship_date].shipCount += 1;
-        // Mock OTD as 95% shipping on time
-        dataMap[c.ship_date].otdSum += (Math.random() > 0.08 ? 1 : 0);
+        const linkedOrder = orders.find((o) => o.order_id === c.order_id);
+        const isOnTime = !linkedOrder?.planned_ship_date || c.ship_date <= linkedOrder.planned_ship_date;
+        if (isOnTime) {
+          dataMap[c.ship_date].otdSum += 1;
+        }
       }
     });
 
     return Object.values(dataMap).map((day) => {
       const qcPassRate = day.inspectSum > 0 
         ? Math.round((day.passSum / day.inspectSum) * 100) 
-        : 0; // Flat 0 line for zero data
+        : 100; // 100% baseline when clean without defects
 
       const otdRate = day.shipCount > 0 
         ? Math.round((day.otdSum / day.shipCount) * 100) 
-        : 0; // Flat 0 line for zero data
+        : 100; // 100% baseline when dispatched
 
       return {
         date: day.date.slice(5), // Short date (MM-DD)
@@ -97,7 +100,7 @@ function Page() {
         "On-Time Delivery %": otdRate,
       };
     });
-  }, [filteredQc, filteredCartons, startDate, endDate]);
+  }, [filteredQc, filteredCartons, orders, startDate, endDate]);
 
   // Aggregate Data for Tables
   // 1. Orders Summary
