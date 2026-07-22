@@ -156,18 +156,25 @@ function LandingPage() {
             {/* Right Card: Curved Hero Fabric Video Banner */}
             <div className="lg:col-span-8 relative min-h-[340px] md:min-h-[440px] rounded-3xl overflow-hidden group shadow-xl border border-neutral-200 bg-white">
               
-              {/* Seamless Looping Golden Cloth Video - Ultra-Bright Original Quality */}
+              {/* Seamless Looping Golden Cloth Video - Protected Against Extension Hover Popups */}
               <video
                 autoPlay
                 loop
                 muted
                 playsInline
+                disablePictureInPicture
+                controlsList="nodownload no-remote-playback noremoteplayback noplaybackrate"
+                aria-hidden="true"
+                tabIndex={-1}
                 preload="auto"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 brightness-[1.05]"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 brightness-[1.05] pointer-events-none select-none"
               >
                 <source src="/assets/AnimationVideoofCloth.mp4" type="video/mp4" />
                 Your browser does not support video playback.
               </video>
+
+              {/* Transparent Event Shield - Blocks browser extension mouse hover popups (PiP / AI Summarizer) */}
+              <div className="absolute inset-0 z-10 bg-transparent pointer-events-auto" />
 
               {/* Floating Bottom-Right Explore Card */}
               <div className="absolute bottom-6 right-6 z-20">
