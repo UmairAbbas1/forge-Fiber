@@ -276,7 +276,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </nav>
             
             <div className="px-5 py-4 border-t border-sidebar-border text-[10px] uppercase tracking-widest text-sidebar-foreground/50">
-              Made to last
+              FORGE &amp; FABRIC
             </div>
           </div>
         </SheetContent>
@@ -372,7 +372,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </TooltipProvider>
 
         <div className="px-5 py-4 border-t border-sidebar-border text-[9px] uppercase tracking-widest text-sidebar-foreground/50 truncate text-center">
-          {collapsed ? "F&F" : "Made to last"}
+          {collapsed ? "F&F" : "FORGE & FABRIC"}
         </div>
       </aside>
 
