@@ -153,17 +153,24 @@ function LandingPage() {
               </div>
             </div>
 
-            {/* Right Card: Curved Hero Fabric Banner with Floating Explore Button */}
-            <div className="lg:col-span-8 relative min-h-[320px] md:min-h-[400px] rounded-3xl overflow-hidden group shadow-lg border border-neutral-200">
-              <img
-                src="/assets/luxury_gold_fabric.png"
-                alt="Luxury Garment Fabric Sourcing"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-tr from-neutral-950/40 via-transparent to-transparent" />
+            {/* Right Card: Curved Hero Fabric Video Banner */}
+            <div className="lg:col-span-8 relative min-h-[340px] md:min-h-[440px] rounded-3xl overflow-hidden group shadow-xl border border-neutral-200 bg-white">
+              
+              {/* Seamless Looping Golden Cloth Video - Ultra-Bright Original Quality */}
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 brightness-[1.05]"
+              >
+                <source src="/assets/AnimationVideoofCloth.mp4" type="video/mp4" />
+                Your browser does not support video playback.
+              </video>
 
               {/* Floating Bottom-Right Explore Card */}
-              <div className="absolute bottom-6 right-6 z-10">
+              <div className="absolute bottom-6 right-6 z-20">
                 <Link
                   to="/orders"
                   className="group/btn flex items-center gap-4 bg-amber-600 hover:bg-neutral-950 text-white p-2.5 pl-6 rounded-full border-2 border-white/20 shadow-2xl transition-all duration-300"
@@ -177,6 +184,7 @@ function LandingPage() {
                   </div>
                 </Link>
               </div>
+
             </div>
 
           </div>
