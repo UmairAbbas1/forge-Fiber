@@ -175,8 +175,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Gated Admin Settings
   const finalNav = user.role === "admin"
-    ? [...reportsNav, { to: "/settings", label: "Settings", icon: Shield }]
-    : reportsNav;
+    ? [...reportsNav, { to: "/settings", label: "Admin Settings", icon: Shield }, { to: "/account", label: "Account Settings", icon: Cog }]
+    : [...reportsNav, { to: "/account", label: "Account Settings", icon: Cog }];
 
   const roleColors: Record<string, string> = {
     admin: "bg-primary/10 text-primary border-primary/25",

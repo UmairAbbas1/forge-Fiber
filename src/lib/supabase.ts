@@ -5,13 +5,16 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
 export const isRealSupabase = Boolean(supabaseUrl && supabaseAnonKey);
 
-// Define type for User Profiles
 export interface Profile {
   id: string;
   email: string;
   role: "admin" | "merchandiser" | "production" | "qc" | "customer";
   customer_name?: string; // used for customer-scoped views
   full_name?: string;
+  contact_phone?: string;
+  notification_prefs?: Record<string, any>;
+  display_theme?: "light" | "dark" | "system";
+  dashboard_view?: "default" | "pipeline" | "kanban";
   created_at: string;
   deactivated?: boolean;
 }

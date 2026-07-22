@@ -17,6 +17,7 @@ interface AuthContextType {
   ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateUserRole: (userId: string, role: Profile["role"]) => Promise<{ error: Error | null }>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -298,8 +299,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    if (isRealSupabase && user) {
+      const profile = await fetchProfile(user.id);
+      if (profile) setUser(profile);
+    } else if (user) {
+      const profiles = getMockProfiles();
+      const fresh = profiles.find((p) => p.id === user.id) || user;
+      setUser(fresh);
+      localStorage.setItem("forge_flow_session", JSON.stringify(fresh));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, authError, signIn, signUp, signOut, updateUserRole }}>
+    <AuthContext.Provider value={{ user, loading, authError, signIn, signUp, signOut, updateUserRole, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
@@ -313,6 +326,7 @@ const defaultAuthContext: AuthContextType = {
   signUp: async () => ({ error: new Error("Auth service initializing...") }),
   signOut: async () => {},
   updateUserRole: async () => ({ error: new Error("Auth service initializing...") }),
+  refreshUser: async () => {},
 };
 
 export function useAuth() {

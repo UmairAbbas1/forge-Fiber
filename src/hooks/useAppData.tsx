@@ -28,6 +28,8 @@ export interface Customer {
   id: string;
   name: string;
   contact: string;
+  billing_address?: string;
+  shipping_address?: string;
 }
 
 export interface Equipment {
@@ -87,6 +89,7 @@ interface AppDataContextType {
   exportExcelTrackerPackage: () => void;
   addCustomer: (name: string, contact: string) => void;
   updateCustomer: (customerId: string, fields: Partial<Customer>) => void;
+  updateProfileSettings: (fields: Partial<Profile>) => Promise<void>;
   addEquipment: (name: string, type: string) => void;
   toggleEquipmentStatus: (equipmentId: string) => void;
   updateCheckpoint: (checkpointId: string, fields: Partial<Checkpoint>) => void;
@@ -150,7 +153,7 @@ const SEED_CHECKPOINTS: Checkpoint[] = [
 ];
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const queryClient = useQueryClient();
   
   // Local storage state fallbacks for mock mode
@@ -794,6 +797,31 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     },
     onError: (error: any) => {
       setToast({ message: `Failed to update customer: ${error.message}`, type: "error" });
+    },
+  });
+
+  const updateProfileSettingsMutation = useMutation({
+    mutationFn: async (fields: Partial<Profile>) => {
+      if (!user) throw new Error("Not authenticated");
+      if (isRealSupabase) {
+        const { error } = await supabase.from("profiles").update(fields).eq("id", user.id);
+        if (error) throw error;
+      } else {
+        // mock logic
+        const profs = getMockProfiles();
+        const idx = profs.findIndex((p) => p.id === user.id);
+        if (idx !== -1) {
+          profs[idx] = { ...profs[idx], ...fields };
+          saveMockProfiles(profs);
+        }
+      }
+    },
+    onSuccess: async () => {
+      await refreshUser();
+      setToast({ message: "Profile settings saved successfully!", type: "success" });
+    },
+    onError: (error: any) => {
+      setToast({ message: `Failed to save settings: ${error.message}`, type: "error" });
     },
   });
 
@@ -1719,14 +1747,15 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const advanceOrderStage = (orderId: string, toStage: number) => {
     updateOrder(orderId, { current_stage: toStage });
+    const stageName = STAGES.find(s => s.id === toStage)?.name || `Stage ${toStage}`;
     createRealtimeNotification(
-      `[STAGE] Order ${orderId} has advanced to Stage ${toStage}.`,
+      `[STAGE ADVANCED] Order ${orderId} has advanced to Stage ${toStage}: ${stageName}.`,
       orderId,
       "stage_advance",
       toStage
     );
     setToast({
-      message: `Order ${orderId} successfully advanced to Stage ${toStage}!`,
+      message: `Order ${orderId} successfully advanced to Stage ${toStage}: ${stageName}!`,
       type: "success"
     });
   };
@@ -1793,6 +1822,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         exportExcelTrackerPackage,
         addCustomer,
         updateCustomer,
+        updateProfileSettings: async (f) => updateProfileSettingsMutation.mutateAsync(f),
         addEquipment,
         toggleEquipmentStatus,
         updateCheckpoint,

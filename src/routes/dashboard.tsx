@@ -77,7 +77,9 @@ function Page() {
 
   const [customer, setCustomer] = useState<string>("All");
   const [selectedStage, setSelectedStage] = useState<number | null>(null);
-  const [viewMode, setViewMode] = useState<"pipeline" | "kanban">("pipeline");
+  const [viewMode, setViewMode] = useState<"pipeline" | "kanban">(
+    user?.dashboard_view === "kanban" ? "kanban" : "pipeline"
+  );
 
   // Role guard
   useEffect(() => {

@@ -211,29 +211,47 @@
 }
 
 .dark {
-  --background: #1c1b1b;
-  --foreground: #fcf9f8;
-  --card: #252424;
-  --card-foreground: #fcf9f8;
-  --popover: #252424;
-  --popover-foreground: #fcf9f8;
-  --primary: #ffb5a1;
-  --primary-foreground: #3b0900;
-  --border: #313030;
-  --input: #313030;
+  --background: #111111;
+  --foreground: #f8fafc;
+  --card: #1a1a1a;
+  --card-foreground: #f8fafc;
+  --popover: #1a1a1a;
+  --popover-foreground: #f8fafc;
+  
+  --primary: #94442e; /* Keep the brand terracotta color but slightly adjusted if needed, actually the original is fine */
+  --primary-foreground: #ffffff;
+  
+  --secondary: #225031;
+  --secondary-foreground: #dcfce7;
+  
+  --tertiary: #78350f;
+  --tertiary-foreground: #fef3c7;
+  
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  
+  --accent: #262626;
+  --accent-foreground: #f8fafc;
+  
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fef2f2;
+  
+  --border: #333333;
+  --input: #333333;
+  --ring: #94442e;
 
-  --surface: #1c1b1b;
-  --surface-dim: #141313;
-  --surface-bright: #313030;
-  --surface-container-lowest: #0f0e0e;
-  --surface-container-low: #212020;
-  --surface-container: #252424;
-  --surface-container-high: #2f2e2e;
-  --surface-container-highest: #3a3939;
-  --on-surface: #f3f0ef;
-  --on-surface-variant: #dbc1ba;
-  --inverse-surface: #fcf9f8;
-  --inverse-on-surface: #1c1b1b;
+  --surface: #111111;
+  --surface-dim: #0a0a0a;
+  --surface-bright: #262626;
+  --surface-container-lowest: #000000;
+  --surface-container-low: #141414;
+  --surface-container: #1a1a1a;
+  --surface-container-high: #262626;
+  --surface-container-highest: #333333;
+  --on-surface: #f8fafc;
+  --on-surface-variant: #a3a3a3;
+  --inverse-surface: #f8fafc;
+  --inverse-on-surface: #111111;
 }
 
 @layer base {

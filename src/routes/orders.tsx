@@ -268,10 +268,14 @@ function Page() {
             <div className="flex items-center gap-2 mb-1">
               <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></div>
               <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-primary font-bold">
-                {user?.role === "customer" && user?.customer_name ? user.customer_name : "Operations"}
+                {user?.role === "customer" ? "Brand Workspace" : "Operations"}
               </div>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold">Order Dashboard</h1>
+            <h1 className="text-2xl md:text-3xl font-display font-black tracking-tight flex items-center gap-3">
+              {user?.role === "customer" 
+                ? (user?.customer_name || (filtered.length > 0 ? filtered[0].customer_name : "Your Brand")) 
+                : "Order Dashboard"}
+            </h1>
           </div>
           {canEdit && (
             <button

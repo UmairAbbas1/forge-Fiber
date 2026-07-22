@@ -150,7 +150,22 @@ function GlobalLoadingScreen({ error }: { error?: string | null }) {
  * 2. Users always see a clear loading indicator instead of a frozen screen
  */
 function AuthGate({ children }: { children: ReactNode }) {
-  const { loading, authError } = useAuth();
+  const { user, loading, authError } = useAuth();
+
+  useEffect(() => {
+    if (user?.display_theme) {
+      const isDark = user.display_theme === "dark" || 
+        (user.display_theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      
+      if (isDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [user?.display_theme]);
 
   if (loading) {
     return <GlobalLoadingScreen />;
