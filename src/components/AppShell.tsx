@@ -158,9 +158,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       case "merchandiser":
         return item.to === "/orders";
       case "production":
-        return ["/materials", "/cutting", "/sewing", "/wash", "/qc", "/dispatch"].includes(item.to);
+        return ["/materials", "/cutting", "/sewing", "/wash", "/dispatch"].includes(item.to);
       case "qc":
-        return ["/dashboard", "/materials", "/cutting", "/sewing", "/wash", "/qc", "/dispatch"].includes(item.to);
+        return ["/qc"].includes(item.to);
       case "customer":
         return item.to === "/orders";
       default:

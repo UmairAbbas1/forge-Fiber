@@ -31,9 +31,25 @@ function LoginPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // If already logged in, redirect to dashboard
+  const getRoleDefaultRoute = (role?: string) => {
+    switch (role) {
+      case "admin":
+        return "/dashboard";
+      case "qc":
+        return "/qc";
+      case "production":
+        return "/materials";
+      case "merchandiser":
+      case "customer":
+        return "/orders";
+      default:
+        return "/dashboard";
+    }
+  };
+
+  // If already logged in, redirect to role's default dashboard
   if (user) {
-    navigate({ to: "/dashboard" });
+    navigate({ to: getRoleDefaultRoute(user.role) });
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,7 +77,7 @@ function LoginPage() {
       if (error) {
         setErrorMsg(error.message);
       } else {
-        navigate({ to: "/dashboard" });
+        navigate({ to: getRoleDefaultRoute(user?.role) });
       }
     } catch (err: any) {
       setErrorMsg(err.message || "An unexpected error occurred.");
@@ -113,7 +129,7 @@ function LoginPage() {
           setErrorMsg(error.message);
         }
       } else {
-        navigate({ to: "/dashboard" });
+        navigate({ to: getRoleDefaultRoute(role) });
       }
     } catch (err: any) {
       setErrorMsg(err.message || "An unexpected error occurred.");

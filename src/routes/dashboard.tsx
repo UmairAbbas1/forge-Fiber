@@ -81,12 +81,14 @@ function Page() {
     user?.dashboard_view === "kanban" ? "kanban" : "pipeline"
   );
 
-  // Role guard
+  // Role guard: Only admin has full access to Production Flow dashboard
   useEffect(() => {
     if (!user) {
       navigate({ to: "/login" });
-    } else if (!["admin", "qc"].includes(user.role)) {
-      if (user.role === "customer" || user.role === "merchandiser") {
+    } else if (user.role !== "admin") {
+      if (user.role === "qc") {
+        navigate({ to: "/qc" });
+      } else if (user.role === "customer" || user.role === "merchandiser") {
         navigate({ to: "/orders" });
       } else {
         navigate({ to: "/materials" });
