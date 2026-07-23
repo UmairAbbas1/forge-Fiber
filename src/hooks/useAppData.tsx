@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, useMemo, useCallback, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase, isRealSupabase } from "../lib/supabase";
+import { supabase, isRealSupabase, type Profile, getMockProfiles, saveMockProfiles } from "../lib/supabase";
 import { useAuth } from "./useAuth";
 import { appCache } from "../lib/cacheAndRateLimiter";
 import { eventQueue } from "../lib/eventQueue";
@@ -813,7 +813,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       } else {
         // mock logic
         const profs = getMockProfiles();
-        const idx = profs.findIndex((p) => p.id === user.id);
+        const idx = profs.findIndex((p: Profile) => p.id === user.id);
         if (idx !== -1) {
           profs[idx] = { ...profs[idx], ...fields };
           saveMockProfiles(profs);

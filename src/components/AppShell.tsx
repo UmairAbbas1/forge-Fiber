@@ -606,16 +606,20 @@ export interface SectionCardProps {
   title: string;
   children: ReactNode;
   action?: ReactNode;
+  description?: string;
   className?: string;
 }
 
-export function SectionCard({ title, children, action, className = "" }: SectionCardProps) {
+export function SectionCard({ title, children, action, description, className = "" }: SectionCardProps) {
   return (
     <div className={`bg-card border border-border rounded-xl shadow-sm overflow-hidden ${className}`}>
       <div className="px-5 py-3.5 border-b border-border/60 flex items-center justify-between bg-muted/40">
-        <h3 className="font-sans font-bold text-[11px] tracking-widest uppercase text-primary">
-          {title}
-        </h3>
+        <div>
+          <h3 className="font-sans font-bold text-[11px] tracking-widest uppercase text-primary">
+            {title}
+          </h3>
+          {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
+        </div>
         {action && <div>{action}</div>}
       </div>
       <div className="p-5">{children}</div>

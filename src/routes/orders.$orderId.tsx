@@ -52,13 +52,25 @@ function Page() {
     addWIPLog
   } = useAppData();
 
+  const canEdit = user?.role !== "customer";
+
   const [noteText, setNoteText] = useState("");
   const [isSaved, setIsSaved] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Modal active state
-  const [activeModal, setActiveModal] = useState<"material" | "cutting" | "sewing" | "wash" | "qc" | "carton" | null>(null);
+  const [activeModal, setActiveModal] = useState<"material" | "cutting" | "sewing" | "wash" | "qc" | "carton" | "wip" | null>(null);
+
+  // WIP Movement State
+  const [wipStageId, setWipStageId] = useState(1);
+  const [wipQtyIn, setWipQtyIn] = useState(0);
+  const [wipQtyOut, setWipQtyOut] = useState(0);
+  const [wipRework, setWipRework] = useState(0);
+  const [wipReject, setWipReject] = useState(0);
+  const [wipOperator, setWipOperator] = useState("");
+  const [wipBatchLot, setWipBatchLot] = useState("");
+  const [wipRemarks, setWipRemarks] = useState("");
 
   // Log Material receipt state
   const [matType, setMatType] = useState<"Fabric" | "Trim" | "Accessory">("Fabric");

@@ -174,7 +174,7 @@ function AccountPage() {
   const isCustomer = user.role === "customer";
 
   return (
-    <AppShell title="Account Settings">
+    <AppShell>
       <div className="max-w-4xl mx-auto space-y-6">
         
         {statusMsg && (
@@ -439,7 +439,7 @@ function AccountPage() {
                     <label className="block text-sm font-medium text-muted-foreground mb-1">Interface Theme</label>
                     <select
                       value={theme}
-                      onChange={(e) => setTheme(e.target.value)}
+                      onChange={(e) => setTheme(e.target.value as "light" | "dark" | "system")}
                       className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
                     >
                       <option value="light">Light Mode</option>
@@ -451,7 +451,7 @@ function AccountPage() {
                     <label className="block text-sm font-medium text-muted-foreground mb-1">Default Dashboard View</label>
                     <select
                       value={dashboardView}
-                      onChange={(e) => setDashboardView(e.target.value)}
+                      onChange={(e) => setDashboardView(e.target.value as "default" | "pipeline" | "kanban")}
                       className="w-full bg-background border border-input rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
                     >
                       <option value="default">KPI Overview</option>
