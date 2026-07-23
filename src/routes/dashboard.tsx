@@ -81,12 +81,14 @@ function Page() {
     user?.dashboard_view === "kanban" ? "kanban" : "pipeline"
   );
 
-  // Role guard
+  // Role guard: Only admin has full access to Production Flow dashboard
   useEffect(() => {
     if (!user) {
       navigate({ to: "/login" });
-    } else if (!["admin", "qc"].includes(user.role)) {
-      if (user.role === "customer" || user.role === "merchandiser") {
+    } else if (user.role !== "admin") {
+      if (user.role === "qc") {
+        navigate({ to: "/qc" });
+      } else if (user.role === "customer" || user.role === "merchandiser") {
         navigate({ to: "/orders" });
       } else {
         navigate({ to: "/materials" });
@@ -227,35 +229,35 @@ function Page() {
     <AppShell>
       <div className="space-y-6">
         
-        {/* Minimalist Top Control Bar with Smooth Slider */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+        {/* Top Control Bar */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-border/40 pb-4">
           
           {/* View switcher toggle */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200 shrink-0">
+          <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-xl border border-border/40 shrink-0">
             <button
               onClick={() => setViewMode("pipeline")}
               className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all ${
-                viewMode === "pipeline" ? "bg-white text-slate-900 shadow-sm border border-slate-200/60" : "text-slate-500 hover:text-slate-900"
+                viewMode === "pipeline" ? "bg-primary text-primary-foreground shadow-sm glow-cyan" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Gauge className="h-3.5 w-3.5 inline mr-1 text-primary" /> Flow Timeline
+              <Gauge className="h-3.5 w-3.5 inline mr-1" /> Flow Timeline
             </button>
             <button
               onClick={() => setViewMode("kanban")}
               className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all ${
-                viewMode === "kanban" ? "bg-white text-slate-900 shadow-sm border border-slate-200/60" : "text-slate-500 hover:text-slate-900"
+                viewMode === "kanban" ? "bg-primary text-primary-foreground shadow-sm glow-cyan" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Layers className="h-3.5 w-3.5 inline mr-1 text-primary" /> Kanban Board
+              <Layers className="h-3.5 w-3.5 inline mr-1" /> Kanban Board
             </button>
           </div>
 
           {/* Account Brand Slider Rail */}
           <div className="flex items-center gap-2 min-w-0 max-w-full overflow-hidden">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 shrink-0 hidden sm:inline">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground shrink-0 hidden sm:inline">
               Filter Brand:
             </span>
-            <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200 overflow-x-auto whitespace-nowrap scrollbar-none max-w-full">
+            <div className="flex items-center gap-1 p-1 bg-muted/40 rounded-xl border border-border/40 overflow-x-auto whitespace-nowrap scrollbar-none max-w-full">
               {customersList.map((c) => (
                 <button
                   key={c}
@@ -265,8 +267,8 @@ function Page() {
                   }}
                   className={`px-3 py-1.5 rounded-lg text-[11px] font-bold tracking-wide uppercase transition-all shrink-0 ${
                     customer === c
-                      ? "bg-primary text-white shadow-sm font-extrabold"
-                      : "text-slate-700 hover:text-slate-900 hover:bg-white/60"
+                      ? "bg-primary text-primary-foreground shadow-sm glow-cyan"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   {c === "All" ? "All Accounts" : c}
@@ -276,78 +278,78 @@ function Page() {
           </div>
         </div>
 
-        {/* High-Contrast KPI grid cards */}
+        {/* Brand-themed KPI grid cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-900" />
+          <div className="relative bg-card border border-border rounded-xl p-5 overflow-hidden shadow-sm hover:shadow-md transition-all">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-navy" />
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active Accounts Orders</span>
-                <h3 className="mt-1.5 text-3xl font-black font-sans text-slate-900">{totalOrders}</h3>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Orders</span>
+                <h3 className="mt-2 text-3xl font-black font-sans text-navy">{totalOrders}</h3>
               </div>
-              <div className="h-9 w-9 rounded-xl bg-slate-900 text-white grid place-items-center shrink-0 shadow-sm">
+              <div className="h-9 w-9 rounded-xl bg-navy/10 text-navy grid place-items-center shrink-0">
                 <ClipboardList className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-3 text-[10px] text-slate-500 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-emerald-600 font-bold" />
-              <span className="font-semibold text-slate-700">{totalVolume.toLocaleString()} units in pipeline</span>
+            <div className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 text-success" />
+              <span className="font-semibold text-foreground/70">{totalVolume.toLocaleString()} units in pipeline</span>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
+          <div className="relative bg-card border border-border rounded-xl p-5 overflow-hidden shadow-sm hover:shadow-md transition-all">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active WIP Production</span>
-                <h3 className="mt-1.5 text-3xl font-black font-sans text-slate-900">{inProd}</h3>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active WIP</span>
+                <h3 className="mt-2 text-3xl font-black font-sans text-primary">{inProd}</h3>
               </div>
-              <div className="h-9 w-9 rounded-xl bg-primary text-white grid place-items-center shrink-0 shadow-sm">
+              <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
                 <Factory className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-3 text-[10px] text-slate-500 flex items-center gap-1.5">
+            <div className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-primary" />
-              <span className="font-medium text-slate-700">Conversion active on lines</span>
+              <span className="font-medium text-foreground/70">Conversion active on lines</span>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-600" />
+          <div className="relative bg-card border border-border rounded-xl p-5 overflow-hidden shadow-sm hover:shadow-md transition-all">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-success" />
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Dispatched &amp; Shipped</span>
-                <h3 className="mt-1.5 text-3xl font-black font-sans text-slate-900">{shipped}</h3>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Dispatched</span>
+                <h3 className="mt-2 text-3xl font-black font-sans text-success">{shipped}</h3>
               </div>
-              <div className="h-9 w-9 rounded-xl bg-emerald-600 text-white grid place-items-center shrink-0 shadow-sm">
+              <div className="h-9 w-9 rounded-xl bg-success/10 text-success grid place-items-center shrink-0">
                 <Truck className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-3 text-[10px] text-slate-500 flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-              <span className="font-medium text-slate-700">POD logs registered</span>
+            <div className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3 text-success" />
+              <span className="font-medium text-foreground/70">POD logs registered</span>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-600" />
+          <div className="relative bg-card border border-border rounded-xl p-5 overflow-hidden shadow-sm hover:shadow-md transition-all">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-warning" />
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">On Hold Holds</span>
-                <h3 className="mt-1.5 text-3xl font-black font-sans text-slate-900">{onHold}</h3>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">On Hold</span>
+                <h3 className="mt-2 text-3xl font-black font-sans text-warning">{onHold}</h3>
               </div>
-              <div className="h-9 w-9 rounded-xl bg-amber-600 text-white grid place-items-center shrink-0 shadow-sm">
+              <div className="h-9 w-9 rounded-xl bg-warning/10 text-warning grid place-items-center shrink-0">
                 <AlertOctagon className="h-5 w-5" />
               </div>
             </div>
-            <div className="mt-3 text-[10px] text-slate-500 flex items-center gap-1">
+            <div className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1">
               {onHold > 0 ? (
                 <>
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-600" />
-                  <span className="text-amber-700 font-bold">Action needed immediately</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+                  <span className="text-warning font-bold">Action needed immediately</span>
                 </>
               ) : (
-                <span className="text-slate-600">No blocking holds found</span>
+                <span className="text-foreground/60">No blocking holds found</span>
               )}
             </div>
           </div>
@@ -355,17 +357,17 @@ function Page() {
 
         {/* Display either timeline or kanban view mode */}
         {viewMode === "pipeline" ? (
-          /* 13-Stage Conversion Pipeline Dashboard */
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          /* 13-Stage pipeline panel */
+          <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-border/60 flex items-center justify-between bg-muted/40">
               <div>
-                <h3 className="font-sans font-bold text-sm tracking-wide uppercase text-slate-900">
+                <h3 className="font-sans font-bold text-[11px] tracking-widest uppercase text-primary">
                   13-Stage Conversion Flow Tracker
                 </h3>
-                <p className="text-[11px] text-slate-500">Select any operational node stage below to drill down into active floor orders.</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Select any operational node stage below to drill down into active floor orders.</p>
               </div>
-              <div className="text-[10px] uppercase font-bold tracking-wider text-slate-700 flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1">
-                <Gauge className="h-3.5 w-3.5 text-primary" /> Flow Visualization
+              <div className="text-[10px] uppercase font-bold tracking-wider text-primary/80 flex items-center gap-1.5 bg-primary/8 border border-primary/20 rounded-lg px-3 py-1.5">
+                <Gauge className="h-3.5 w-3.5" /> Flow Visualization
               </div>
             </div>
             
@@ -374,7 +376,7 @@ function Page() {
                 <div className="min-w-[1400px] relative px-4">
                   
                   {/* Horizontal flow line indicator */}
-                  <div className="absolute top-8 left-16 right-16 h-0.5 bg-slate-200 z-0" />
+                  <div className="absolute top-8 left-16 right-16 h-px bg-border/30 z-0" />
 
                   {/* Stage cards row */}
                   <div className="grid grid-cols-13 gap-3 relative z-10" style={{ gridTemplateColumns: "repeat(13, minmax(0, 1fr))" }}>
@@ -391,53 +393,50 @@ function Page() {
                           className={`group text-left rounded-xl border p-3 transition-all duration-200 focus:outline-none flex flex-col justify-between h-40 ${
                             active
                               ? "border-primary bg-primary text-white shadow-md"
-                              : "border-slate-200 bg-white hover:border-primary hover:shadow-sm"
+                              : "border-border bg-card hover:border-primary/40 hover:shadow-sm"
                           }`}
                         >
                           <div className="flex items-center justify-between w-full">
                             <div className={`h-6 w-6 rounded-lg grid place-items-center text-[11px] font-bold ${
-                              active ? "bg-white text-primary" : "bg-slate-100 text-slate-900 border border-slate-200"
+                              active ? "bg-white/20 text-white" : "bg-muted text-foreground border border-border"
                             }`}>
                               {s.id}
                             </div>
-                            
-                            {/* Pulsing indicator if active orders occupy this stage */}
                             {hasActiveOrders ? (
                               <span className="relative flex h-2.5 w-2.5">
-                                <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                                  active ? "bg-white" : "bg-emerald-600"
+                                <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping ${
+                                  active ? "bg-white" : "bg-success"
                                 }`}></span>
                                 <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                                  active ? "bg-white" : "bg-emerald-600"
+                                  active ? "bg-white" : "bg-success"
                                 }`}></span>
                               </span>
                             ) : (
-                              <Icon className={`h-4.5 w-4.5 ${active ? "text-white" : "text-slate-400 group-hover:text-primary transition-colors"}`} />
+                              <Icon className={`h-4.5 w-4.5 ${active ? "text-white/80" : "text-muted-foreground group-hover:text-primary transition-colors"}`} />
                             )}
                           </div>
-                          
                           <div className="mt-3">
-                            {/* STAGE NAME IS SOLID BLACK COLOUR AS REQUESTED */}
-                            <div className={`text-[11px] font-black leading-snug line-clamp-2 ${active ? "text-white" : "text-black"}`}>
+                            <div className={`text-[11px] font-black leading-snug line-clamp-2 ${active ? "text-white" : "text-foreground"}`}>
                               {s.name}
                             </div>
                             {"equipment" in s && s.equipment && (
                               <div className={`mt-1.5 inline-block text-[9px] font-bold px-1.5 py-0.5 rounded leading-none ${
-                                active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-700 border border-slate-200/60"
+                                active ? "bg-white/20 text-white" : "bg-muted text-muted-foreground border border-border"
                               }`}>
                                 {s.equipment.split(",")[0]}
                               </div>
                             )}
                           </div>
-
-                          <div className="mt-3 pt-2 border-t border-slate-200/60 w-full flex justify-between items-center">
+                          <div className={`mt-3 pt-2 border-t w-full flex justify-between items-center ${
+                            active ? "border-white/20" : "border-border"
+                          }`}>
                             <span className={`text-[9px] uppercase tracking-wider font-extrabold ${
-                              active ? "text-white/80" : "text-slate-500"
+                              active ? "text-white/70" : "text-muted-foreground"
                             }`}>
                               Active
                             </span>
                             <span className={`text-[11px] font-black ${
-                              active ? "text-white bg-white/20 px-2 py-0.5 rounded-full" : "text-secondary"
+                              active ? "text-white" : "text-success"
                             }`}>
                               {count}
                             </span>
@@ -450,25 +449,25 @@ function Page() {
                   {/* QC checkpoint connectors */}
                   <div className="mt-6 grid relative z-10" style={{ gridTemplateColumns: "repeat(13, minmax(0, 1fr))" }}>
                     {STAGES.map((s) => {
-                      const cp = QC_CHECKPOINTS.find((c) => c.after_stage === s.id);
-                      return (
-                        <div key={s.id} className="flex flex-col items-center">
-                          {cp ? (
-                            <div className="flex flex-col items-center w-full px-1.5">
-                              <div className="h-4 w-0.5 bg-dashed border-l-2 border-dashed border-gold" />
-                              <div className="mt-1 bg-slate-100 border border-slate-300 rounded-lg p-2 flex items-center gap-1.5 justify-center w-full shadow-sm">
-                                <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500 shrink-0" />
-                                <div className="text-[9px] font-black text-slate-900 text-center uppercase tracking-wide leading-none shrink-0 truncate max-w-full">
-                                  {cp.name}
+                        const cp = QC_CHECKPOINTS.find((c) => c.after_stage === s.id);
+                        return (
+                          <div key={s.id} className="flex flex-col items-center">
+                            {cp ? (
+                              <div className="flex flex-col items-center w-full px-1.5">
+                                <div className="h-4 w-0.5 bg-primary/40" />
+                                <div className="mt-1 bg-primary/10 border border-primary/30 rounded-lg p-2 flex items-center gap-1.5 justify-center w-full shadow-sm glow-cyan">
+                                  <Star className="h-3.5 w-3.5 fill-primary text-primary shrink-0" />
+                                  <div className="text-[9px] font-black text-primary text-center uppercase tracking-wide leading-none shrink-0 truncate max-w-full">
+                                    {cp.name}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="h-4" />
-                          )}
-                        </div>
-                      );
-                    })}
+                            ) : (
+                              <div className="h-4" />
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               </div>
@@ -500,7 +499,7 @@ function Page() {
                   </div>
 
                   {/* Kanban Cards list */}
-                  <div className="bg-muted/30 border border-border/60 rounded-xl p-3 flex flex-col gap-3 min-h-[500px] overflow-y-auto max-h-[650px] divide-y divide-border/20">
+                  <div className="bg-muted/50 border border-border rounded-xl p-3 flex flex-col gap-2.5 min-h-[500px] overflow-y-auto max-h-[650px]">
                     {phaseOrders.length === 0 ? (
                       <div className="text-center py-12 text-[11px] text-muted-foreground border border-dashed border-border/80 rounded-lg bg-white my-auto">
                         <Compass className="h-6 w-6 text-muted-foreground/55 mx-auto mb-1.5" />
@@ -519,14 +518,14 @@ function Page() {
                         return (
                           <div
                             key={o.order_id}
-                            className="bg-white border border-border/80 rounded-lg p-3.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-3 group"
+                            className="bg-card border border-border rounded-lg p-3.5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-3 group"
                           >
                             <div className="flex justify-between items-start">
                               <div>
                                 <Link
                                   to="/orders/$orderId"
                                   params={{ orderId: o.order_id }}
-                                  className="text-xs font-black text-secondary hover:underline flex items-center gap-1"
+                                  className="text-xs font-black text-primary hover:underline flex items-center gap-1"
                                 >
                                   {o.order_id} <ArrowUpRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </Link>
@@ -541,7 +540,7 @@ function Page() {
 
                             <div className="space-y-1">
                               <div className="text-[9px] uppercase tracking-wider font-extrabold text-muted-foreground">Current Stage</div>
-                              <div className="text-[11px] font-bold text-primary truncate">
+                              <div className="text-[11px] font-bold text-navy truncate">
                                 Stage {o.current_stage}: {stageInfo?.name}
                               </div>
                             </div>
@@ -686,18 +685,18 @@ function Page() {
         )}
 
         {/* Business Model Conversion Flow Overview */}
-        <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-border/60 bg-muted/10">
-            <h3 className="font-display font-bold text-xs uppercase tracking-widest text-primary">
-              Forge &amp; Fabric Conversion business model
+        <div className="bg-card border border-border/60 rounded-2xl shadow-sm overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-border/40 bg-muted/30">
+            <h3 className="font-sans font-bold text-[11px] uppercase tracking-widest text-primary">
+              Forge &amp; Fabric Conversion Business Model
             </h3>
           </div>
           <div className="p-5">
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="p-4 rounded-xl border border-border/60 bg-white hover:shadow-sm transition-shadow relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-full h-1 bg-navy" />
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl border border-border/40 bg-muted/20 hover:border-primary/30 hover:glow-cyan transition-all relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-0.5 bg-primary" />
                 <div className="flex gap-3.5 items-start">
-                  <div className="h-8 w-8 rounded-lg bg-navy/10 text-navy grid place-items-center text-xs font-black shrink-0">1</div>
+                  <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 text-primary grid place-items-center text-sm font-black shrink-0">1</div>
                   <div className="space-y-1">
                     <h4 className="text-xs font-black uppercase tracking-wider text-primary">Customer Consigns Materials</h4>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -707,12 +706,12 @@ function Page() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-border/60 bg-white hover:shadow-sm transition-shadow relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gold" />
+              <div className="p-4 rounded-xl border border-border/40 bg-muted/20 hover:border-warning/30 hover:glow-amber transition-all relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-0.5 bg-warning" />
                 <div className="flex gap-3.5 items-start">
-                  <div className="h-8 w-8 rounded-lg bg-gold/10 text-warning-foreground grid place-items-center text-xs font-black shrink-0">2</div>
+                  <div className="h-9 w-9 rounded-xl bg-warning/10 border border-warning/20 text-warning grid place-items-center text-sm font-black shrink-0">2</div>
                   <div className="space-y-1">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-primary">Transformation &amp; Sewing</h4>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-warning">Transformation &amp; Sewing</h4>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
                       Factory floor handles pattern cut layouts, operations sewing line bundles, laundry washed finishes, and QC checks.
                     </p>
@@ -720,12 +719,12 @@ function Page() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl border border-border/60 bg-white hover:shadow-sm transition-shadow relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-full h-1 bg-success" />
+              <div className="p-4 rounded-xl border border-border/40 bg-muted/20 hover:border-success/30 hover:glow-emerald transition-all relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-0.5 bg-success" />
                 <div className="flex gap-3.5 items-start">
-                  <div className="h-8 w-8 rounded-lg bg-success/10 text-success grid place-items-center text-xs font-black shrink-0">3</div>
+                  <div className="h-9 w-9 rounded-xl bg-success/10 border border-success/20 text-success grid place-items-center text-sm font-black shrink-0">3</div>
                   <div className="space-y-1">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-primary">Finished Carton Shipment</h4>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-success">Finished Carton Shipment</h4>
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
                       Finished garments are pressed, tagged, packed in boxes, and shipped out with registered POD tracking numbers.
                     </p>

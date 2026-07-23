@@ -158,9 +158,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       case "merchandiser":
         return item.to === "/orders";
       case "production":
-        return ["/materials", "/cutting", "/sewing", "/wash", "/qc", "/dispatch"].includes(item.to);
+        return ["/materials", "/cutting", "/sewing", "/wash", "/dispatch"].includes(item.to);
       case "qc":
-        return ["/dashboard", "/materials", "/cutting", "/sewing", "/wash", "/qc", "/dispatch"].includes(item.to);
+        return ["/qc"].includes(item.to);
       case "customer":
         return item.to === "/orders";
       default:
@@ -231,22 +231,20 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex font-sans">
+    <div className="min-h-screen bg-background text-foreground flex font-sans industrial-grid">
       
       {/* Mobile Menu Drawer (Radix-based Sheet) */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="p-0 bg-sidebar text-sidebar-foreground w-64 border-r border-sidebar-border">
+        <SheetContent side="left" className="p-0 bg-sidebar text-sidebar-foreground w-64 border-r border-sidebar-border/60">
           <div className="flex flex-col h-full">
-            <div className="px-5 py-5 border-b border-sidebar-border">
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/SVG_MARK.svg" 
-                  alt="Logo" 
-                  className="h-9 w-auto object-contain" 
-                />
+            <div className="px-5 py-5 border-b border-sidebar-border/60">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 glow-cyan">
+                  <img src="/SVG_MARK.svg" alt="Logo" className="h-6 w-auto object-contain" />
+                </div>
                 <div className="leading-tight">
-                  <div className="font-display font-bold text-sm tracking-wide text-sidebar-foreground">FORGE &amp; FABRIC</div>
-                  <div className="text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/60">
+                  <div className="font-display font-bold text-sm tracking-wide text-gradient-cyan">FORGE &amp; FABRIC</div>
+                  <div className="text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/50">
                     Built to craft
                   </div>
                 </div>
@@ -262,10 +260,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                     key={item.to}
                     to={item.to}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                       active
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-primary font-semibold"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+                        ? "bg-primary/10 text-primary border-l-2 border-primary font-semibold glow-cyan"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     }`}
                   >
                     <Icon className="h-4.5 w-4.5" />
@@ -284,43 +282,39 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Desktop Sidebar */}
       <aside 
-        className={`hidden md:flex shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 ${
+        className={`hidden md:flex shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border/60 transition-all duration-300 ${
           collapsed ? "w-16" : "w-64"
         }`}
       >
         {collapsed ? (
-          <div className="py-4 px-2 border-b border-sidebar-border flex flex-col items-center gap-2.5">
-            <img 
-              src="/SVG_MARK.svg" 
-              alt="Logo" 
-              className="h-8 w-auto object-contain shrink-0" 
-            />
+          <div className="py-4 px-2 border-b border-sidebar-border/60 flex flex-col items-center gap-2.5">
+            <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center glow-cyan">
+              <img src="/SVG_MARK.svg" alt="Logo" className="h-6 w-auto object-contain" />
+            </div>
             <button 
               onClick={toggleCollapsed}
-              className="p-1.5 rounded-md bg-sidebar-accent/50 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all focus:outline-none"
+              className="p-1.5 rounded-lg bg-sidebar-accent hover:bg-primary/10 hover:text-primary hover:border hover:border-primary/30 transition-all focus:outline-none"
               title="Expand Sidebar"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         ) : (
-          <div className="px-4 py-4 border-b border-sidebar-border flex items-center justify-between">
+          <div className="px-4 py-4 border-b border-sidebar-border/60 flex items-center justify-between">
             <div className="flex items-center gap-3 overflow-hidden">
-              <img 
-                src="/SVG_MARK.svg" 
-                alt="Forge & Fabric Logo" 
-                className="h-10 w-auto md:h-11 object-contain p-0.5 bg-white shadow-sm border border-white/20 shrink-0 rounded-lg" 
-              />
+              <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 glow-cyan">
+                <img src="/SVG_MARK.svg" alt="Forge & Fabric Logo" className="h-7 w-auto object-contain" />
+              </div>
               <div className="leading-tight transition-all duration-300">
-                <div className="font-display font-bold text-lg md:text-xl tracking-tight text-white">FORGE &amp; FABRIC</div>
-                <div className="text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/70 font-semibold">
+                <div className="font-display font-bold text-base tracking-tight text-gradient-cyan">FORGE &amp; FABRIC</div>
+                <div className="text-[10px] uppercase tracking-[0.16em] text-sidebar-foreground/50 font-semibold">
                   Built to craft
                 </div>
               </div>
             </div>
             <button 
               onClick={toggleCollapsed}
-              className="p-1.5 rounded-md bg-sidebar-accent/40 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground transition-all focus:outline-none"
+              className="p-1.5 rounded-lg bg-sidebar-accent hover:bg-primary/10 hover:text-primary transition-all focus:outline-none"
               title="Collapse Sidebar"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -338,14 +332,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`flex items-center text-sm transition-all focus:outline-none ${
-                    collapsed ? "justify-center h-10 w-10 mx-auto rounded-lg" : "gap-3 px-3.5 py-2.5 rounded-md"
+                  className={`flex items-center text-sm transition-all duration-200 focus:outline-none ${
+                    collapsed ? "justify-center h-10 w-10 mx-auto rounded-xl" : "gap-3 px-3.5 py-2.5 rounded-xl"
                   } ${
                     active
                       ? collapsed
-                        ? "bg-secondary text-secondary-foreground font-bold shadow-sm"
-                        : "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-primary font-semibold"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
+                        ? "bg-primary/15 text-primary border border-primary/30 shadow-sm glow-cyan"
+                        : "bg-primary/10 text-primary border-l-2 border-primary font-semibold"
+                      : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                   }`}
                 >
                   <Icon className="h-4.5 w-4.5 shrink-0" />
@@ -359,7 +353,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <TooltipTrigger asChild>
                       {linkEl}
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="bg-primary text-white text-xs font-semibold px-2 py-1 rounded shadow">
+                    <TooltipContent side="right" className="bg-primary text-primary-foreground text-xs font-semibold px-2.5 py-1.5 rounded-lg shadow-lg border border-primary/30">
                       {item.label}
                     </TooltipContent>
                   </Tooltip>
@@ -371,14 +365,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
         </TooltipProvider>
 
-        <div className="px-5 py-4 border-t border-sidebar-border text-[9px] uppercase tracking-widest text-sidebar-foreground/50 truncate text-center">
-          {collapsed ? "F&F" : "FORGE & FABRIC"}
+        <div className="px-5 py-4 border-t border-sidebar-border/40 text-[9px] uppercase tracking-widest text-sidebar-foreground/30 truncate text-center font-mono">
+          {collapsed ? "F&F" : "FORGE & FABRIC · SYS v2"}
         </div>
       </aside>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-20 bg-card border-b border-border">
+        <header className="sticky top-0 z-20 bg-card/95 backdrop-blur-md border-b border-border/60" style={{boxShadow:'0 1px 0 rgba(0,212,255,0.08)'}}>
           <div className="flex items-center justify-between px-4 md:px-8 h-14">
             
             {/* Hamburger Icon for Mobile view */}
@@ -401,23 +395,23 @@ export function AppShell({ children }: { children: ReactNode }) {
                   value={globalSearchQuery}
                   onChange={(e) => setGlobalSearchQuery(e.target.value)}
                   placeholder="Search order ID, PO, customer…"
-                  className="w-full pl-9 pr-3 h-9 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
+                  className="w-full pl-9 pr-3 h-9 rounded-xl border border-border/60 bg-muted/50 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all"
                 />
               </div>
             </div>
             
             {/* Header Right */}
             <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground border-r border-border pr-4">
-                <span className="flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
+              <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground border-r border-border/40 pr-4">
+                <span className="flex items-center gap-1.5 font-medium text-primary">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                   </span>
                   Realtime Synced
                 </span>
-                <span className="opacity-40">•</span>
-                <span>{now}</span>
+                <span className="opacity-30">•</span>
+                <span className="font-mono text-[11px]">{now}</span>
               </div>
               
               {/* Notifications Popover */}
@@ -486,12 +480,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               {/* User Profile */}
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center text-primary-variant font-bold text-xs uppercase">
+                <div className="h-8 w-8 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary font-bold text-xs uppercase glow-cyan">
                   {getInitials(user.full_name, user.email)}
                 </div>
                 <div className="hidden lg:block text-left leading-none">
                   <div className="text-xs font-bold text-foreground font-display max-w-[120px] truncate">{user.full_name || user.email}</div>
-                  <span className={`mt-0.5 inline-block text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded border ${roleColors[user.role]}`}>
+                  <span className={`mt-0.5 inline-block text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md border ${roleColors[user.role]}`}>
                     {user.role}
                   </span>
                 </div>
@@ -513,12 +507,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-black/95 text-white text-xs px-4 py-3 rounded-lg shadow-2xl border border-white/10 flex items-center gap-2 animate-scale-up">
+        <div className="fixed bottom-6 right-6 z-50 bg-card/95 backdrop-blur-md text-foreground text-xs px-4 py-3 rounded-xl shadow-2xl border border-border/60 flex items-center gap-2 animate-scale-up" style={{boxShadow:'0 0 24px rgba(0,212,255,0.15)'}}>
           <div className={`h-2 w-2 rounded-full animate-ping ${
             toast.type === "error"
               ? "bg-destructive"
               : toast.type === "info"
-              ? "bg-blue-500"
+              ? "bg-primary"
               : "bg-success"
           }`} />
           <span>{toast.message}</span>
@@ -589,19 +583,21 @@ export interface KpiTileProps {
 
 export function KpiTile({ label, value, accent = "navy", hint }: KpiTileProps) {
   const colors = {
-    navy: "border-l-4 border-navy",
-    gold: "border-l-4 border-gold",
-    success: "border-l-4 border-success",
-    destructive: "border-l-4 border-destructive",
+    navy:        { bar: "bg-navy",        num: "text-navy",        badge: "bg-navy/8 border-navy/15" },
+    gold:        { bar: "bg-gold",        num: "text-gold",        badge: "bg-gold/8 border-gold/15" },
+    success:     { bar: "bg-success",     num: "text-success",     badge: "bg-success/8 border-success/15" },
+    destructive: { bar: "bg-destructive", num: "text-destructive", badge: "bg-destructive/8 border-destructive/15" },
   };
+  const c = colors[accent];
 
   return (
-    <div className={`bg-card border border-border rounded-xl p-4 shadow-sm flex flex-col justify-between ${colors[accent]}`}>
+    <div className="relative bg-card border border-border rounded-xl p-5 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      <div className={`absolute top-0 left-0 right-0 h-0.5 ${c.bar}`} />
       <div>
-        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{label}</div>
-        <div className="mt-1 text-2xl font-bold font-display">{value}</div>
+        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</div>
+        <div className={`mt-2 text-3xl font-black font-sans ${c.num}`}>{value}</div>
       </div>
-      {hint && <div className="mt-2 text-[10px] text-muted-foreground font-mono-data">{hint}</div>}
+      {hint && <div className="mt-3 text-[10px] text-muted-foreground font-mono">{hint}</div>}
     </div>
   );
 }
@@ -615,9 +611,9 @@ export interface SectionCardProps {
 
 export function SectionCard({ title, children, action, className = "" }: SectionCardProps) {
   return (
-    <div className={`bg-card border border-border rounded-xl shadow-sm ${className}`}>
-      <div className="px-5 py-4 border-b border-border/60 flex items-center justify-between">
-        <h3 className="font-display font-bold text-sm tracking-wide uppercase text-primary">
+    <div className={`bg-card border border-border rounded-xl shadow-sm overflow-hidden ${className}`}>
+      <div className="px-5 py-3.5 border-b border-border/60 flex items-center justify-between bg-muted/40">
+        <h3 className="font-sans font-bold text-[11px] tracking-widest uppercase text-primary">
           {title}
         </h3>
         {action && <div>{action}</div>}
@@ -667,7 +663,7 @@ export function ProgressBar({ value, colorClass = "bg-primary" }: { value: numbe
   const clamped = Math.max(0, Math.min(100, value));
   return (
     <div className="h-2 w-full rounded-full bg-muted overflow-hidden border border-border/30">
-      <div className={`h-full transition-all duration-500 ${colorClass}`} style={{ width: `${clamped}%` }} />
+      <div className={`h-full transition-all duration-500 rounded-full ${colorClass}`} style={{ width: `${clamped}%` }} />
     </div>
   );
 }

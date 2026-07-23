@@ -116,142 +116,124 @@
   --spacing-margin-desktop: 40px;
 }
 
+/* ============================================================ */
+/* FORGE & FABRIC — PREMIUM LIGHT DASHBOARD THEME              */
+/* Warm white canvas · Navy sidebar · Terracotta accents        */
+/* ============================================================ */
+
 :root {
   --radius: 0.5rem;
-  --background: #ffffff;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #94442e;
-  --primary-foreground: #ffffff;
-  --secondary: #3a6847;
+
+  /* ── Core canvas ── */
+  --background:      #F5F5F0;
+  --foreground:      #111111;
+  --card:            #ffffff;
+  --card-foreground: #111111;
+  --popover:         #ffffff;
+  --popover-foreground: #111111;
+
+  /* ── Brand primary: deep terracotta/rust ── */
+  --primary:             #A63D2F;
+  --primary-foreground:  #ffffff;
+
+  /* ── Secondary: forest green ── */
+  --secondary:           #2D6A4F;
   --secondary-foreground: #ffffff;
-  --tertiary: #7f5300;
+
+  /* ── Tertiary: warm amber-gold ── */
+  --tertiary:            #B45309;
   --tertiary-foreground: #ffffff;
-  --muted: #f8fafc;
-  --muted-foreground: #475569;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ba1a1a;
-  --destructive-foreground: #ffffff;
-  --success: #3a6847;
-  --success-foreground: #ffffff;
-  --warning: #7f5300;
-  --warning-foreground: #ffffff;
-  --gold: #7f5300;
-  --gold-foreground: #ffffff;
-  --navy: #94442e;
-  --navy-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #94442e;
 
-  /* Explicit Chart Tokens */
-  --chart-1: #94442e; /* Primary Terracotta */
-  --chart-2: #3a6847; /* Semantic Forest Green Pass */
-  --chart-3: #7f5300; /* Semantic Bronze Warning/Rework */
-  --chart-4: #ba1a1a; /* Industrial Error Red */
-  --chart-5: #475569; /* Slate Muted */
+  /* ── Muted surfaces ── */
+  --muted:               #EEEDE8;
+  --muted-foreground:    #6B6B6B;
+  --accent:              #E8E6DF;
+  --accent-foreground:   #111111;
 
-  /* Dark Contrast Sidebar */
-  --sidebar: #0f172a;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #94442e;
+  /* ── Semantic ── */
+  --destructive:             #C62828;
+  --destructive-foreground:  #ffffff;
+  --success:                 #1B6B3A;
+  --success-foreground:      #ffffff;
+  --warning:                 #B45309;
+  --warning-foreground:      #ffffff;
+
+  /* ── Legacy aliases ── */
+  --gold:             #B45309;
+  --gold-foreground:  #ffffff;
+  --navy:             #1B2A4A;
+  --navy-foreground:  #ffffff;
+  --error:            #C62828;
+
+  /* ── Borders / inputs / ring ── */
+  --border:  #D9D7D0;
+  --input:   #E8E6DF;
+  --ring:    #A63D2F;
+
+  /* ── Charts (visible on white) ── */
+  --chart-1: #A63D2F;
+  --chart-2: #2D6A4F;
+  --chart-3: #B45309;
+  --chart-4: #C62828;
+  --chart-5: #1B2A4A;
+
+  /* ── Dark Navy Sidebar ── */
+  --sidebar:                    #111827;
+  --sidebar-foreground:         #D1D5DB;
+  --sidebar-primary:            #E8724A;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #94442e;
+  --sidebar-accent:             #1F2937;
+  --sidebar-accent-foreground:  #F3F4F6;
+  --sidebar-border:             #1F2937;
+  --sidebar-ring:               #E8724A;
 
-  /* Design System Explicit Variables - Super White Canvas */
-  --surface: #ffffff;
-  --surface-dim: #e2e8f0;
-  --surface-bright: #ffffff;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #ffffff;
-  --surface-container: #f8fafc;
-  --surface-container-high: #f1f5f9;
-  --surface-container-highest: #e2e8f0;
-  --on-surface: #0f172a;
-  --on-surface-variant: #475569;
-  --inverse-surface: #0f172a;
-  --inverse-on-surface: #ffffff;
-  --outline: #94a3b8;
-  --outline-variant: #cbd5e1;
-  --surface-tint: #94442e;
-  --primary-container: #94442e;
-  --on-primary-container: #ffffff;
-  --inverse-primary: #ffb5a1;
-  --on-primary: #ffffff;
-  --on-secondary: #ffffff;
-  --secondary-container: #dcfce7;
-  --on-secondary-container: #166534;
-  --on-tertiary: #ffffff;
-  --tertiary-container: #fef3c7;
-  --on-tertiary-container: #78350f;
-  --error: #ba1a1a;
-  --on-error: #ffffff;
-  --error-container: #fee2e2;
-  --on-error-container: #991b1b;
-  --primary-fixed: #ffdbd1;
-  --primary-fixed-dim: #ffb5a1;
-  --on-primary-fixed: #3b0900;
-  --on-primary-fixed-variant: #79301b;
-  --secondary-fixed: #bcefc5;
-  --secondary-fixed-dim: #a1d2aa;
-  --on-secondary-fixed: #00210d;
-  --on-secondary-fixed-variant: #225031;
-  --tertiary-fixed: #ffddb3;
-  --tertiary-fixed-dim: #f8bc63;
-  --on-tertiary-fixed: #291800;
-  --on-tertiary-fixed-variant: #624000;
-  --surface-variant: #e2e8f0;
+  /* ── Design system surfaces ── */
+  --surface:                   #F5F5F0;
+  --surface-dim:               #E8E6DF;
+  --surface-bright:            #ffffff;
+  --surface-container-lowest:  #ffffff;
+  --surface-container-low:     #FAFAF7;
+  --surface-container:         #F5F5F0;
+  --surface-container-high:    #EEEDE8;
+  --surface-container-highest: #E2E0D8;
+  --on-surface:                #111111;
+  --on-surface-variant:        #6B6B6B;
+  --inverse-surface:           #111111;
+  --inverse-on-surface:        #ffffff;
+  --outline:                   #A0A09A;
+  --outline-variant:           #D9D7D0;
+  --surface-tint:              #A63D2F;
+  --primary-container:         #F9E8E5;
+  --on-primary-container:      #7A1E12;
+  --inverse-primary:           #F9A58C;
+  --on-primary:                #ffffff;
+  --on-secondary:              #ffffff;
+  --secondary-container:       #D6EDD8;
+  --on-secondary-container:    #0D3D20;
+  --on-tertiary:               #ffffff;
+  --tertiary-container:        #FDE8CA;
+  --on-tertiary-container:     #7C3000;
+  --error-container:           #FDDEDE;
+  --on-error-container:        #7A0000;
+  --primary-fixed:             #F9E8E5;
+  --primary-fixed-dim:         #F0C8C0;
+  --on-primary-fixed:          #7A1E12;
+  --on-primary-fixed-variant:  #A63D2F;
+  --secondary-fixed:           #D6EDD8;
+  --secondary-fixed-dim:       #A8D6AD;
+  --on-secondary-fixed:        #0D3D20;
+  --on-secondary-fixed-variant:#2D6A4F;
+  --tertiary-fixed:            #FDE8CA;
+  --tertiary-fixed-dim:        #F9CC8A;
+  --on-tertiary-fixed:         #7C3000;
+  --on-tertiary-fixed-variant: #B45309;
+  --surface-variant:           #E8E6DF;
 }
 
 .dark {
-  --background: #111111;
-  --foreground: #f8fafc;
-  --card: #1a1a1a;
-  --card-foreground: #f8fafc;
-  --popover: #1a1a1a;
-  --popover-foreground: #f8fafc;
-  
-  --primary: #94442e; /* Keep the brand terracotta color but slightly adjusted if needed, actually the original is fine */
-  --primary-foreground: #ffffff;
-  
-  --secondary: #225031;
-  --secondary-foreground: #dcfce7;
-  
-  --tertiary: #78350f;
-  --tertiary-foreground: #fef3c7;
-  
-  --muted: #262626;
-  --muted-foreground: #a3a3a3;
-  
-  --accent: #262626;
-  --accent-foreground: #f8fafc;
-  
-  --destructive: #7f1d1d;
-  --destructive-foreground: #fef2f2;
-  
-  --border: #333333;
-  --input: #333333;
-  --ring: #94442e;
-
-  --surface: #111111;
-  --surface-dim: #0a0a0a;
-  --surface-bright: #262626;
-  --surface-container-lowest: #000000;
-  --surface-container-low: #141414;
-  --surface-container: #1a1a1a;
-  --surface-container-high: #262626;
-  --surface-container-highest: #333333;
-  --on-surface: #f8fafc;
-  --on-surface-variant: #a3a3a3;
-  --inverse-surface: #f8fafc;
-  --inverse-on-surface: #111111;
+  /* Intentionally mirrors :root — no dark mode active */
+  --background: #F5F5F0;
+  --foreground: #111111;
 }
 
 @layer base {
@@ -266,16 +248,40 @@
 }
 
 @layer utilities {
+  /* Subtle dot-grid texture on dashboard body */
   .industrial-grid {
-    background-size: 40px 40px;
-    background-image: radial-gradient(circle, var(--color-outline-variant) 1px, transparent 1px);
+    background-size: 36px 36px;
+    background-image: radial-gradient(circle, rgba(100, 90, 80, 0.10) 1px, transparent 1px);
   }
+
+  /* Warm hover underline accent */
   .brass-edge-hover:hover {
-    border-bottom: 2px solid var(--color-secondary);
+    border-bottom: 2px solid var(--color-primary);
   }
+
+  /* Frosted glass card */
   .glass-card {
     background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(166, 61, 47, 0.12);
+  }
+
+  /* Soft shadow tints — used on KPI cards */
+  .glow-cyan   { box-shadow: 0 2px 12px rgba(166, 61, 47,  0.12); }
+  .glow-violet { box-shadow: 0 2px 12px rgba(45, 106, 79,  0.14); }
+  .glow-emerald{ box-shadow: 0 2px 12px rgba(27, 107, 58,  0.14); }
+  .glow-amber  { box-shadow: 0 2px 12px rgba(180, 83,  9,  0.14); }
+
+  /* Brand gradient text */
+  .text-gradient-cyan {
+    background: linear-gradient(135deg, #A63D2F 0%, #B45309 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .pulse-cyan {
+    animation: none; /* Disabled in light mode */
   }
 }
 
@@ -283,3 +289,9 @@
   from { width: 100%; }
   to   { width: 0%; }
 }
+
+@keyframes fade-up {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+

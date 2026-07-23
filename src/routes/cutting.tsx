@@ -187,13 +187,13 @@ function Page() {
 
           <SectionCard title="First Cut Approvals">
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-md bg-success/10 border border-success/30 p-3">
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">Approved Today</div>
-                <div className="mt-1 text-2xl font-display font-bold text-success">{approvedToday}</div>
+              <div className="rounded-xl bg-success/10 border border-success/30 p-4 glow-emerald">
+                <div className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Approved Today</div>
+                <div className="mt-2 text-3xl font-black text-success">{approvedToday}</div>
               </div>
-              <div className="rounded-md bg-gold/10 border border-gold/30 p-3">
-                <div className="text-xs uppercase tracking-wider text-muted-foreground">Pending Approval</div>
-                <div className="mt-1 text-2xl font-display font-bold text-warning-foreground">{pendingApproval}</div>
+              <div className="rounded-xl bg-warning/10 border border-warning/30 p-4 glow-amber">
+                <div className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Pending Approval</div>
+                <div className="mt-2 text-3xl font-black text-warning">{pendingApproval}</div>
               </div>
             </div>
           </SectionCard>
