@@ -30,5 +30,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Sensitive Environment Files & Keys
 .env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.staging
+.dev.vars
+*.pem
+*.key
+*.crt
+debug-*.cjs
+debug-*.js
+debug-*.ts
+
 .vercel
