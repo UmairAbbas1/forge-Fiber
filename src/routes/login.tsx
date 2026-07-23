@@ -141,7 +141,7 @@ function LoginPage() {
 
         {/* Center Logo */}
         <Link to="/" className="z-10 flex flex-col items-center justify-center transform hover:scale-105 transition-all duration-300">
-          <img src="/favicon.png" alt="Forge & Fabric Logo" className="w-80 h-80 md:w-[380px] md:h-[380px] object-contain mix-blend-multiply" />
+          <img src="/SVG_LOGO.svg" alt="Forge & Fabric Logo" className="w-80 h-80 md:w-[380px] md:h-[380px] object-contain mix-blend-multiply" />
         </Link>
       </div>
 
@@ -150,7 +150,7 @@ function LoginPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <img src="/favicon.png" alt="Logo" className="h-12 w-12 rounded-xl object-contain p-1 border border-border shadow-sm" />
+              <img src="/SVG_LOGO.svg" alt="Logo" className="h-12 w-12 rounded-xl object-contain p-1 border border-border shadow-sm" />
               <div>
                 <h1 className="font-display text-3xl font-bold text-foreground">
                   Access Operations

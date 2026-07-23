@@ -96,9 +96,9 @@ function GlobalLoadingScreen({ error }: { error?: string | null }) {
       {/* Brand mark */}
       <div className="flex items-center gap-3">
         <img 
-          src="/favicon.png" 
+          src="/SVG_LOGO.svg" 
           alt="Logo" 
-          className="h-20 w-20 rounded-lg object-cover select-none" 
+          className="h-20 w-20 rounded-lg object-contain select-none" 
         />
         <span className="font-display font-bold text-3xl tracking-wider text-primary">
           Forge &amp; Fabric
@@ -193,7 +193,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" },
