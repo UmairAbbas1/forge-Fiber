@@ -197,8 +197,8 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
 
-            <Link to="/" className="flex items-center gap-3 py-1 group shrink-0">
-              <img src="/SVG_MARK.svg" alt="Forge & Fabric Logo" className="h-10 w-auto md:h-12 object-contain group-hover:scale-105 transition-transform" />
+            <Link to="/" className="flex items-center gap-3 py-1 group shrink-0 select-none">
+              <img src="/SVG_MARK.svg" alt="Forge & Fabric Logo" draggable={false} className="h-10 w-auto md:h-12 object-contain group-hover:scale-105 transition-transform pointer-events-none select-none" />
               <span className="font-display text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-neutral-950 whitespace-nowrap">
                 FORGE<span className="text-amber-600 font-serif italic font-normal">&amp;</span>FABRIC
               </span>
