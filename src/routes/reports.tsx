@@ -22,7 +22,7 @@ export const Route = createFileRoute("/reports")({
 function Page() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { orders, qc, cartons, importExcelTrackerPackage, exportExcelTrackerPackage, setToast } = useAppData();
+  const { orders, materials, qc, cartons, importExcelTrackerPackage, exportExcelTrackerPackage, setToast } = useAppData();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Date range state (defaulting to last 30 days)
@@ -40,17 +40,26 @@ function Page() {
     }
   }, [user, navigate]);
 
-  // Filter lists based on date range
+  // Filter lists based on date range (using clean YYYY-MM-DD comparison)
   const filteredOrders = useMemo(() => {
-    return orders.filter((o) => o.created_date >= startDate && o.created_date <= endDate);
+    return orders.filter((o) => {
+      const cDate = (o.created_date || "").slice(0, 10);
+      return !cDate || (cDate >= startDate && cDate <= endDate);
+    });
   }, [orders, startDate, endDate]);
 
   const filteredQc = useMemo(() => {
-    return qc.filter((q) => q.inspected_date >= startDate && q.inspected_date <= endDate);
+    return qc.filter((q) => {
+      const iDate = (q.inspected_date || "").slice(0, 10);
+      return !iDate || (iDate >= startDate && iDate <= endDate);
+    });
   }, [qc, startDate, endDate]);
 
   const filteredCartons = useMemo(() => {
-    return cartons.filter((c) => !c.ship_date || (c.ship_date >= startDate && c.ship_date <= endDate));
+    return cartons.filter((c) => {
+      const sDate = (c.ship_date || "").slice(0, 10);
+      return !sDate || (sDate >= startDate && sDate <= endDate);
+    });
   }, [cartons, startDate, endDate]);
 
   // Aggregate Chart Data (daily trends)
@@ -67,20 +76,23 @@ function Page() {
 
     // Accumulate QC
     filteredQc.forEach((q) => {
-      if (dataMap[q.inspected_date]) {
-        dataMap[q.inspected_date].inspectSum += q.inspected_qty;
-        dataMap[q.inspected_date].passSum += q.pass_qty;
+      const iDate = (q.inspected_date || "").slice(0, 10);
+      if (dataMap[iDate]) {
+        dataMap[iDate].inspectSum += q.inspected_qty;
+        dataMap[iDate].passSum += q.pass_qty;
       }
     });
 
     // Accumulate Shipped Cartons & On-Time Delivery Rate
     filteredCartons.forEach((c) => {
-      if (c.dispatch_status === "Shipped" && c.ship_date && dataMap[c.ship_date]) {
-        dataMap[c.ship_date].shipCount += 1;
+      const sDate = (c.ship_date || "").slice(0, 10);
+      if (c.dispatch_status === "Shipped" && sDate && dataMap[sDate]) {
+        dataMap[sDate].shipCount += 1;
         const linkedOrder = orders.find((o) => o.order_id === c.order_id);
-        const isOnTime = !linkedOrder?.planned_ship_date || c.ship_date <= linkedOrder.planned_ship_date;
+        const planned = (linkedOrder?.planned_ship_date || "").slice(0, 10);
+        const isOnTime = !planned || sDate <= planned;
         if (isOnTime) {
-          dataMap[c.ship_date].otdSum += 1;
+          dataMap[sDate].otdSum += 1;
         }
       }
     });
@@ -88,14 +100,14 @@ function Page() {
     return Object.values(dataMap).map((day) => {
       const qcPassRate = day.inspectSum > 0 
         ? Math.round((day.passSum / day.inspectSum) * 100) 
-        : 100; // 100% baseline when clean without defects
+        : 100;
 
       const otdRate = day.shipCount > 0 
         ? Math.round((day.otdSum / day.shipCount) * 100) 
-        : 100; // 100% baseline when dispatched
+        : 100;
 
       return {
-        date: day.date.slice(5), // Short date (MM-DD)
+        date: day.date.slice(5),
         "QC Pass Rate %": qcPassRate,
         "On-Time Delivery %": otdRate,
       };
@@ -103,24 +115,58 @@ function Page() {
   }, [filteredQc, filteredCartons, orders, startDate, endDate]);
 
   // Aggregate Data for Tables
-  // 1. Orders Summary
+  // 1. Orders Summary (Dynamic calculation of Material Status, Delivered Qty & Open Balance)
   const ordersSummaryData = useMemo(() => {
-    return filteredOrders.map((o) => ({
-      order_id: o.order_id,
-      customer_name: o.customer_name,
-      PO_number: o.PO_number,
-      qty: o.qty,
-      status: o.status,
-      current_stage: o.current_stage,
-      created_date: o.created_date
-    }));
-  }, [filteredOrders]);
+    return filteredOrders.map((o) => {
+      const oMaterials = (materials || []).filter((m) => m.order_id === o.order_id);
+      let calcMaterialStatus = "Approved";
+      if (oMaterials.length === 0) {
+        calcMaterialStatus = o.current_stage >= 4 ? "Approved" : "Pending";
+      } else if (oMaterials.some((m) => m.inspection_status === "Hold")) {
+        calcMaterialStatus = "Hold";
+      } else if (oMaterials.some((m) => m.inspection_status === "Pending")) {
+        calcMaterialStatus = "Pending";
+      }
+
+      const shippedCartons = (cartons || []).filter((c) => c.order_id === o.order_id && c.dispatch_status === "Shipped");
+      let calcDeliveredQty = shippedCartons.reduce((sum, c) => sum + (c.packed_qty || 0), 0);
+      if (calcDeliveredQty === 0 && (o.current_stage === 13 || o.status === "Shipped")) {
+        calcDeliveredQty = o.qty;
+      }
+      const calcOpenBalance = Math.max(0, o.qty - calcDeliveredQty);
+
+      let calcDeliveryStatus = "Pending";
+      if (calcDeliveredQty >= o.qty || o.current_stage === 13 || o.status === "Shipped") {
+        calcDeliveryStatus = "Dispatched";
+      } else if (calcDeliveredQty > 0) {
+        calcDeliveryStatus = "Partial";
+      } else if (o.status === "On Hold") {
+        calcDeliveryStatus = "On Hold";
+      } else if (o.current_stage >= 6) {
+        calcDeliveryStatus = "In Production";
+      }
+
+      const cleanDate = (o.created_date || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
+
+      return {
+        order_id: o.order_id,
+        customer_name: o.customer_name,
+        PO_number: o.PO_number,
+        qty: o.qty,
+        status: calcDeliveryStatus,
+        material_status: calcMaterialStatus,
+        delivered_qty: calcDeliveredQty,
+        open_balance: calcOpenBalance,
+        current_stage: o.current_stage,
+        created_date: cleanDate,
+      };
+    });
+  }, [filteredOrders, materials, cartons]);
 
   // 2. QC rates by Checkpoint
   const qcRatesData = useMemo(() => {
     const checkpointsMap: Record<string, { checkpoint: string; inspected: number; pass: number; reject: number }> = {};
     
-    // Seed groups
     const cpNames = [
       "Material Sourcing/Receiving Check",
       "First Cut Panel Approval",
@@ -153,31 +199,31 @@ function Page() {
     });
   }, [filteredQc]);
 
-  // 3. On-Time Delivery
+  // 3. On-Time Delivery Performance
   const otdPerformanceData = useMemo(() => {
-    // filter shipped orders
-    const shippedOrders = orders.filter(o => o.status === "Shipped");
-    return shippedOrders.map(o => {
-      const oCartons = cartons.filter(c => c.order_id === o.order_id);
-      const shipDate = oCartons.find(c => c.ship_date)?.ship_date || "2026-06-28";
-      // Calculate diff days
-      const days = Math.round((new Date(shipDate).getTime() - new Date(o.created_date).getTime()) / (1000 * 60 * 60 * 24));
+    const dispatchedOrders = orders.filter(o => o.status === "Shipped" || o.current_stage === 13 || cartons.some(c => c.order_id === o.order_id && c.dispatch_status === "Shipped"));
+    return dispatchedOrders.map((o) => {
+      const oCartons = cartons.filter(c => c.order_id === o.order_id && c.dispatch_status === "Shipped");
+      const shipDate = oCartons.find(c => c.ship_date)?.ship_date?.slice(0, 10) || (o.created_date ? o.created_date.slice(0, 10) : new Date().toISOString().slice(0, 10));
+      const intakeDate = (o.created_date || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
+      const days = Math.max(1, Math.round((new Date(shipDate).getTime() - new Date(intakeDate).getTime()) / (1000 * 60 * 60 * 24)));
+      const plannedDate = (o.planned_ship_date || "").slice(0, 10);
+      const isOnTime = !plannedDate || shipDate <= plannedDate || days <= 14;
       return {
         "Order ID": o.order_id,
         Customer: o.customer_name,
         "PO Number": o.PO_number,
         Quantity: o.qty,
-        "Intake Date": o.created_date,
+        "Intake Date": intakeDate,
         "Ship Date": shipDate,
         "Lead Time (days)": days,
-        Status: days <= 12 ? "On Time" : "Delayed",
+        Status: isOnTime ? "On Time" : "Delayed",
       };
     });
   }, [orders, cartons]);
 
-  // 4. Stage Cycle-Times (avg days spent per stage)
+  // 4. Stage Cycle-Times
   const cycleTimesData = useMemo(() => {
-    // Generate mock cycle times mapping STAGES
     const baseAverages = [1.2, 2.1, 1.4, 0.5, 1.8, 0.8, 1.2, 2.5, 1.5, 1.0, 1.2, 1.8, 2.0];
     return STAGES.map((s, i) => {
       return {
@@ -349,10 +395,10 @@ function Page() {
             title="Orders summary"
             action={
               <button 
-                onClick={() => exportToCSV(ordersSummaryData, ["order_id", "customer_name", "PO_number", "qty", "status", "current_stage", "created_date"], "orders_summary.csv")}
-                className="bg-primary hover:bg-black text-white hover:text-white px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 transition-colors"
+                onClick={() => exportToCSV(ordersSummaryData, ["order_id", "customer_name", "PO_number", "qty", "material_status", "delivered_qty", "open_balance", "status", "current_stage", "created_date"], "orders_summary.csv")}
+                className="bg-primary hover:bg-black text-white hover:text-white px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
               >
-                <Download className="h-3 w-3" /> Export CSV
+                <Download className="h-3.5 w-3.5" /> Export CSV
               </button>
             }
           >
@@ -362,17 +408,27 @@ function Page() {
                   <tr>
                     <th className="py-1.5 pr-2">Order</th>
                     <th className="py-1.5 pr-2">Customer</th>
-                    <th className="py-1.5 pr-2">Qty</th>
+                    <th className="py-1.5 pr-2">Order Qty</th>
+                    <th className="py-1.5 pr-2">Delivered</th>
+                    <th className="py-1.5 pr-2">Open Bal</th>
                     <th className="py-1.5 pr-2">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {ordersSummaryData.slice(0, 10).map(o => (
+                  {ordersSummaryData.slice(0, 10).map((o) => (
                     <tr key={o.order_id} className="border-b border-border/40">
-                      <td className="py-2 pr-2 font-medium">{o.order_id}</td>
+                      <td className="py-2 pr-2 font-semibold text-primary">{o.order_id}</td>
                       <td className="py-2 pr-2">{o.customer_name}</td>
                       <td className="py-2 pr-2">{o.qty.toLocaleString()}</td>
-                      <td className="py-2 pr-2">{o.status}</td>
+                      <td className="py-2 pr-2 text-success font-medium">{o.delivered_qty.toLocaleString()}</td>
+                      <td className="py-2 pr-2 font-medium">{o.open_balance.toLocaleString()}</td>
+                      <td className="py-2 pr-2">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                          o.status === "Dispatched" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"
+                        }`}>
+                          {o.status}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

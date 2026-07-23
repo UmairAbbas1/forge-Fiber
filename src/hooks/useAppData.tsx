@@ -1479,23 +1479,71 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
     // 1. Orders Sheet
     const ordersHeaders = ["Order ID", "Customer", "PO Number", "Style No", "Style Description", "Color", "Order Qty", "Order Date", "Planned Ship Date", "Material Status", "Current Stage", "Delivered Qty", "Open Balance", "Delivery Status", "Notes"];
-    const ordersRows = orders.map(o => [
-      o.order_id,
-      `"${o.customer_name}"`,
-      o.PO_number,
-      o.style_no || "N/A",
-      `"${o.style_description || "Denim Garment"}"`,
-      o.color || "Indigo",
-      o.qty,
-      o.created_date,
-      o.planned_ship_date || o.created_date,
-      o.material_status || "Approved",
-      o.current_stage,
-      o.delivered_qty || 0,
-      o.open_balance || o.qty,
-      o.delivery_status || o.status,
-      `"${o.notes || ""}"`
-    ].join(","));
+    const ordersRows = orders.map((o) => {
+      // Dynamic Material Status from materials state
+      const oMaterials = materials.filter((m) => m.order_id === o.order_id);
+      let calcMaterialStatus = "Approved";
+      if (oMaterials.length === 0) {
+        calcMaterialStatus = o.current_stage >= 4 ? "Approved" : "Pending";
+      } else if (oMaterials.some((m) => m.inspection_status === "Hold")) {
+        calcMaterialStatus = "Hold";
+      } else if (oMaterials.some((m) => m.inspection_status === "Pending")) {
+        calcMaterialStatus = "Pending";
+      }
+
+      // Dynamic Delivered Qty from shipped cartons
+      const shippedCartons = cartons.filter((c) => c.order_id === o.order_id && c.dispatch_status === "Shipped");
+      let calcDeliveredQty = shippedCartons.reduce((sum, c) => sum + (c.packed_qty || 0), 0);
+      if (calcDeliveredQty === 0 && (o.current_stage === 13 || o.status === "Shipped")) {
+        calcDeliveredQty = o.qty;
+      }
+
+      // Dynamic Open Balance
+      const calcOpenBalance = Math.max(0, o.qty - calcDeliveredQty);
+
+      // Dynamic Delivery Status
+      let calcDeliveryStatus = "Pending";
+      if (calcDeliveredQty >= o.qty || o.current_stage === 13 || o.status === "Shipped") {
+        calcDeliveryStatus = "Dispatched";
+      } else if (calcDeliveredQty > 0) {
+        calcDeliveryStatus = "Partial";
+      } else if (o.status === "On Hold") {
+        calcDeliveryStatus = "On Hold";
+      } else if (o.current_stage >= 6) {
+        calcDeliveryStatus = "In Production";
+      }
+
+      // Clean YYYY-MM-DD dates to prevent Excel '########' date overflow
+      const cleanOrderDate = (o.created_date || "").slice(0, 10) || new Date().toISOString().slice(0, 10);
+      let cleanPlannedShipDate = (o.planned_ship_date || "").slice(0, 10);
+      if (!cleanPlannedShipDate) {
+        const d = new Date(cleanOrderDate);
+        d.setDate(d.getDate() + 14);
+        cleanPlannedShipDate = d.toISOString().slice(0, 10);
+      }
+
+      const styleNo = o.style_no || `ST-${o.order_id.replace(/\D/g, "") || "101"}`;
+      const styleDesc = o.style_description || "Denim Garment";
+      const color = o.color || "Indigo";
+
+      return [
+        o.order_id,
+        `"${o.customer_name || ""}"`,
+        o.PO_number || "PO-N/A",
+        styleNo,
+        `"${styleDesc}"`,
+        color,
+        o.qty,
+        cleanOrderDate,
+        cleanPlannedShipDate,
+        calcMaterialStatus,
+        o.current_stage,
+        calcDeliveredQty,
+        calcOpenBalance,
+        calcDeliveryStatus,
+        `"${o.notes || ""}"`
+      ].join(",");
+    });
     downloadCSV("Forge_Fabric_Orders.csv", [ordersHeaders.join(","), ...ordersRows].join("\n"));
 
     // 2. WIPLog Sheet
